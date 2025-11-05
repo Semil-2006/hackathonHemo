@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Doador</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background-color: #fafafa; }
+    form { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 15px; }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+    button { margin-top: 20px; padding: 10px 20px; background-color: #b91c1c; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    button:hover { background-color: #dc2626; }
+  </style>
+</head>
+<body>
+
+  <h1>Cadastro de Doador</h1>
+  <form action="/submit" method="POST">
+    <label>Nome completo:</label>
+    <input type="text" name="nome" required>
+
+    <label>Email:</label>
+    <input type="email" name="email" required>
+
+    <label>Telefone:</label>
+    <input type="text" name="telefone" required>
+
+    <label>Data de nascimento:</label>
+    <input type="date" name="data_nascimento" required>
+
+    <label>Gênero:</label>
+    <select name="genero" required>
+      <option value="">Selecione</option>
+      <option>Masculino</option>
+      <option>Feminino</option>
+      <option>Não binário</option>
+    </select>
+
+    <label>Tipo sanguíneo:</label>
+    <select name="tipo_sanguineo" required>
+      <option value="">Selecione</option>
+      <option>A+</option><option>A-</option>
+      <option>B+</option><option>B-</option>
+      <option>AB+</option><option>AB-</option>
+      <option>O+</option><option>O-</option>
+      <option>Não sei meu tipo de sangue</option>
+    </select>
+
+    <label>CEP:</label>
+    <input type="text" name="cep" id="cep" required>
+
+    <label>Endereço:</label>
+    <input type="text" name="endereco" id="endereco" readonly>
+
+    <label>Já doou sangue?</label>
+    <select name="ja_doou" id="ja_doou" required onchange="togglePergunta()">
+      <option value="">Selecione</option>
+      <option value="sim">Sim</option>
+      <option value="nao">Não</option>
+    </select>
+
+    <div id="pergunta_sim" style="display:none;">
+      <label>Qual foi a primeira vez?</label>
+      <input type="text" name="primeira_vez">
+    </div>
+
+    <div id="pergunta_nao" style="display:none;">
+      <label>Tem interesse em doar sangue?</label>
+      <input type="text" name="interesse">
+    </div>
+
+    <label><input type="checkbox" name="autoriza_msg"> Autorizo receber mensagens</label>
+    <label><input type="checkbox" name="autoriza_dados" required> Autorizo o uso dos meus dados conforme a LGPD</label>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    document.getElementById('cep').addEventListener('blur', async () => {
+      const cep = document.getElementById('cep').value.replace(/\D/g, '');
+      if (cep.length === 8) {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await res.json();
+        document.getElementById('endereco').value = data.logradouro || '';
+      }
+    });
+
+    function togglePergunta() {
+      const val = document.getElementById('ja_doou').value;
+      document.getElementById('pergunta_sim').style.display = val === 'sim' ? 'block' : 'none';
+      document.getElementById('pergunta_nao').style.display = val === 'nao' ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
