@@ -1,101 +1,323 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Administrador</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
       rel="stylesheet"
     />
-    
+
     <!-- CAMINHOS CORRIGIDOS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard_admin.css') }}">
-</head>
-<body>
-        <!-- Header include -->
-        {% include 'components/header.html' %}
-    
-    <!-- 
-      NOTA: Seu HTML original estava quebrado aqui. 
-      Faltava um <main> e as </section> estavam erradas. Eu organizei.
-    -->
-    <main class="main-content-dashboard"> <!-- Você precisará estilizar isso -->
-        <aside class="sidebar">
-            <div class="panel filters">
-                <h3>Filtros</h3>
-                <label for="citySelect">Cidade</label>
-                <select id="citySelect"><option value="all">Todas as cidades</option></select>
-                <label for="periodSelect">Período</label>
-                <select id="periodSelect">
-                    <option value="30">Últimos 30 dias</option>
-                    <option value="90">Últimos 90 dias</option>
-                    <option value="180">Últimos 180 dias</option>
-                </select>
-                <label for="channelSelect">Canal preferencial</label>
-                <select id="channelSelect">
-                    <option value="all">Todos</option>
-                    <option value="email">E-mail</option>
-                    <option value="sms">SMS</option>
-                </select>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/global.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/dashboard_admin.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Header include -->
+    {% include 'components/header.html' %}
 
-                <div style="margin-top:14px">
-                    <h4 style="margin:0;color:var(--muted)">Peso para ranking</h4>
-                    <div class="weight-row"><label style="width:110px">Potencial</label><input id="wPotential" type="range" min="0" max="10" value="6" /><span id="wPotentialVal">6</span></div>
-                    <div class="weight-row"><label style="width:110px">Engajamento</label><input id="wEngage" type="range" min="0" max="10" value="3" /><span id="wEngageVal">3</span></div>
-                    <div class="weight-row"><label style="width:110px">Logística</label><input id="wLog" type="range" min="0" max="10" value="1" /><span id="wLogVal">1</span></div>
+    <main class="main-content-dashboard">
+      <!-- Barra de Filtros e Ações -->
+      <nav class="filter-nav">
+        <div class="filter-container">
+          <!-- Filtro: Datas -->
+          <div class="filter-group filter-group-auto">
+            <label for="start_date" class="filter-label">Data Início</label>
+            <input
+              type="date"
+              id="start_date"
+              name="start_date"
+              class="filter-input"
+            />
+          </div>
+          <div class="filter-group filter-group-auto">
+            <label for="end_date" class="filter-label">Data Fim</label>
+            <input
+              type="date"
+              id="end_date"
+              name="end_date"
+              class="filter-input"
+            />
+          </div>
 
-                    <div style="display:flex;gap:8px;margin-top:12px">
-                        <button id="applyWeights">Aplicar pesos</button>
-                        <button id="resetWeights" class="link-like small">Reset</button>
-                    </div>
-                </div>
+          <!-- Filtro: Tipo Sanguíneo -->
+          <div class="filter-group filter-group-auto">
+            <label for="blood_type" class="filter-label">Tipo Sanguíneo</label>
+            <select id="blood_type" name="blood_type" class="filter-input">
+              <option value="todos">Todos</option>
+              <option value="a+">A+</option>
+              <option value="a-">A-</option>
+              <option value="b+">B+</option>
+              <option value="b-">B-</option>
+              <option value="o+">O+</option>
+              <option value="o-">O-</option>
+              <option value="ab+">AB+</option>
+              <option value="ab-">AB-</option>
+            </select>
+          </div>
 
-                <div style="margin-top:16px;">
-                    <h4 style="margin:0;color:var(--muted)">Simulação</h4>
-                    <label style="margin-top:8px">Data da campanha</label>
-                    <input id="simDate" type="date" />
-                    <label style="margin-top:8px">Duração (horas)</label>
-                    <input id="simHours" type="number" min="1" max="12" value="6" />
-                    <div style="display:flex;gap:8px;margin-top:8px">
-                        <button id="runSim">Rodar simulação</button>
-                        <button id="clearSim" class="link-like small">Limpar</button>
-                    </div>
-                </div>
+          <!-- Filtro: Região -->
+          <div class="filter-group filter-group-auto">
+            <label for="region" class="filter-label">Cidade/Região</label>
+            <select id="region" name="region" class="filter-input">
+              <option value="todas">Todas</option>
+              <option value="regiao_norte">Região Norte</option>
+              <option value="regiao_sul">Região Sul</option>
+              <option value="regiao_central">Região Central</option>
+            </select>
+          </div>
 
-                <div class="note">Observação: o sistema usa apenas dados agregados e preditivos da base existente. Nenhum dado individual é exibido.</div>
+          <!-- Botões de Ação (Mensagem) e Exportação -->
+
+          <!-- Botão para enviar mensagem, adicionado dentro de um filter-group para garantir alinhamento responsivo com os inputs -->
+          <div class="filter-group filter-group-auto">
+            <button
+              class="btn btn-campaign"
+              onclick="window.location.href='admin_nova_campanha.html';"
+            >
+              Criar Campanha (Mensagem)
+            </button>
+          </div>
+          <!-- Botões de Exportação -->
+          <div class="export-buttons">
+            <button class="btn btn-csv">Exportar CSV</button>
+            <button class="btn btn-pdf">Exportar PDF</button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Grid Principal do Dashboard -->
+      <div class="dashboard-grid">
+        <!-- Card 1: Farol do Sangue (Status de Estoque) -->
+        <div class="card card-full-lg">
+          <h2 class="card-title">1. Farol do Sangue (Status do Estoque)</h2>
+          <div class="status-legend">
+            <span class="status-indicator"
+              ><span class="status-indicator-dot dot-green"></span>Estável (> 7
+              dias)</span
+            >
+            <span class="status-indicator"
+              ><span class="status-indicator-dot dot-yellow"></span>Alerta (3-7
+              dias)</span
+            >
+            <span class="status-indicator"
+              ><span class="status-indicator-dot dot-red"></span>Crítico (< 3
+              dias)</span
+            >
+          </div>
+
+          <!-- Indicadores de Tipo Sanguíneo -->
+          <div class="blood-types-grid">
+            <!-- A+ -->
+            <div class="blood-type-item">
+              <span class="blood-type-name">A+</span>
+              <div
+                class="blood-type-status-dot dot-green"
+                title="Estável"
+              ></div>
+              <span class="blood-type-days">8.2 dias</span>
             </div>
-
-            <div class="panel" style="margin-top:12px">
-                <h3>Métricas rápidas</h3>
-                <div class="metrics">
-                    <div class="metric"><h3>População alvo (total)</h3><p id="mTotal">—</p></div>
-                    <div class="metric"><h3>Estimativa média</h3><p id="mAvg">—</p></div>
-                </div> <!-- Fechando a div 'metrics' que estava faltando -->
+            <!-- A- -->
+            <div class="blood-type-item">
+              <span class="blood-type-name">A-</span>
+              <div
+                class="blood-type-status-dot dot-yellow"
+                title="Alerta"
+              ></div>
+              <span class="blood-type-days">4.5 dias</span>
             </div>
-        </aside>
+            <!-- B+ -->
+            <div class="blood-type-item">
+              <span class="blood-type-name">B+</span>
+              <div
+                class="blood-type-status-dot dot-green"
+                title="Estável"
+              ></div>
+              <span class="blood-type-days">9.0 dias</span>
+            </div>
+            <!-- B- -->
+            <div class="blood-type-item">
+              <span class="blood-type-name">B-</span>
+              <div class="blood-type-status-dot dot-red" title="Crítico"></div>
+              <span class="blood-type-days">1.8 dias</span>
+            </div>
+            <!-- O+ -->
+            <div class="blood-type-item">
+              <span class="blood-type-name">O+</span>
+              <div
+                class="blood-type-status-dot dot-green"
+                title="Estável"
+              ></div>
+              <span class="blood-type-days">7.1 dias</span>
+            </div>
+            <!-- O- -->
+            <div class="blood-type-item">
+              <span class="blood-type-name">O-</span>
+              <div class="blood-type-status-dot dot-red" title="Crítico"></div>
+              <span class="blood-type-days">2.5 dias</span>
+            </div>
+            <!-- AB+ -->
+            <div class="blood-type-item">
+              <span class="blood-type-name">AB+</span>
+              <div
+                class="blood-type-status-dot dot-yellow"
+                title="Alerta"
+              ></div>
+              <span class="blood-type-days">5.0 dias</span>
+            </div>
+            <!-- AB- -->
+            <div class="blood-type-item">
+              <span class="blood-type-name">AB-</span>
+              <div
+                class="blood-type-status-dot dot-green"
+                title="Estável"
+              ></div>
+              <span class="blood-type-days">10.0 dias</span>
+            </div>
+          </div>
+        </div>
 
-        <!-- 
+        <!-- Card 2: Densidade de Doadores -->
+        <div class="card card-half-lg">
+          <h2 class="card-title">2. Densidade de Doadores por Região</h2>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Cidade/Região</th>
+                  <th>Doadores Ativos</th>
+                  <th>Pop. Elegível (Estim.)</th>
+                  <th>Densidade (Doadores/1k)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Região Central</td>
+                  <td>1.250</td>
+                  <td>150.000</td>
+                  <td class="text-success">8.33</td>
+                </tr>
+                <tr>
+                  <td>Região Norte</td>
+                  <td>840</td>
+                  <td>110.000</td>
+                  <td class="text-warning">7.64</td>
+                </tr>
+                <tr>
+                  <td>Região Sul</td>
+                  <td>910</td>
+                  <td>180.000</td>
+                  <td class="text-danger">5.05</td>
+                </tr>
+                <tr>
+                  <td>Região Oeste</td>
+                  <td>1.100</td>
+                  <td>135.000</td>
+                  <td class="text-warning">8.14</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Card 3: Desempenho Histórico -->
+        <div class="card">
+          <h2 class="card-title">3. Desempenho Histórico (Coletas Externas)</h2>
+          <div class="chart-placeholder">
+            <!-- Placeholder de Gráfico -->
+            <div
+              class="bar"
+              style="height: 33.3%"
+              title="Jan: 120 bolsas"
+            ></div>
+            <div class="bar" style="height: 50%" title="Fev: 150 bolsas"></div>
+            <div
+              class="bar"
+              style="height: 66.6%"
+              title="Mar: 200 bolsas"
+            ></div>
+            <div class="bar" style="height: 50%" title="Abr: 160 bolsas"></div>
+            <div class="bar" style="height: 75%" title="Mai: 230 bolsas"></div>
+            <div class="bar" style="height: 100%" title="Jun: 280 bolsas"></div>
+          </div>
+          <p class="chart-caption">
+            Taxas e tendências de coletas (Últimos 6 meses)
+          </p>
+        </div>
+
+        <!-- Card 4: Ranking Preditivo -->
+        <div class="card">
+          <h2 class="card-title">4. Ranking Preditivo (Potencial de Doação)</h2>
+          <ol class="ranking-list">
+            <li class="ranking-item">
+              <span class="font-medium">1. Bairro Sol Nascente</span>
+              <span class="ranking-potential-success ranking-potential-value"
+                >Potencial: 9.2/10</span
+              >
+            </li>
+            <li class="ranking-item">
+              <span class="font-medium">2. Empresa TechCorp (Parceria)</span>
+              <span class="ranking-potential-success ranking-potential-value"
+                >Potencial: 8.8/10</span
+              >
+            </li>
+            <li class="ranking-item">
+              <span class="font-medium">3. Universidade Central</span>
+              <span class="ranking-potential-warning ranking-potential-value"
+                >Potencial: 7.5/10</span
+              >
+            </li>
+            <li class="ranking-item">
+              <span class="font-medium">4. Praça da Matriz (Evento)</span>
+              <span class="ranking-potential-warning ranking-potential-value"
+                >Potencial: 6.9/10</span
+              >
+            </li>
+            <li class="ranking-item">
+              <span class="font-medium">5. Bairro Industrial</span>
+              <span class="ranking-potential-danger ranking-potential-value"
+                >Potencial: 4.1/10</span
+              >
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- 
           Presumo que o conteúdo principal do dashboard venha aqui 
           (ex: gráficos, tabelas). O HTML original estava incompleto.
         -->
-        <section class="dashboard-main-content">
-            <h1>Visão Geral</h1>
-            <p>Conteúdo principal do dashboard...</p>
-        </section>
-        
+      <section class="dashboard-main-content">
+        <h1>Visão Geral</h1>
+        <p>Conteúdo principal do dashboard...</p>
+      </section>
     </main>
 
-        <!-- Footer include -->
-        {% include 'components/footer.html' %}
+    <!-- Footer include -->
+    {% include 'components/footer.html' %}
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
-    
+
     <!-- CAMINHOS DE SCRIPT CORRIGIDOS -->
-    <script src="{{ url_for('static', filename='scripts/global.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='scripts/carousel.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='scripts/dashboard_admin.js') }}" defer></script>
-</body>
-</html> 
+    <script
+      src="{{ url_for('static', filename='scripts/global.js') }}"
+      defer
+    ></script>
+    <script
+      src="{{ url_for('static', filename='scripts/carousel.js') }}"
+      defer
+    ></script>
+    <script
+      src="{{ url_for('static', filename='scripts/dashboard_admin.js') }}"
+      defer
+    ></script>
+  </body>
+</html>
