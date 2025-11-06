@@ -1,18 +1,15 @@
 // Espera o DOM carregar antes de rodar
 document.addEventListener("DOMContentLoaded", () => {
     
-    // Verifica se a função 'loadComponent' foi carregada (do global.js)
-    if (typeof loadComponent === 'function') {
-        
-        // Carrega os componentes globais
-        loadComponent("header", "components/header.html");
-        loadComponent("footer", "components/footer.html");
-
-    } else {
-        console.error("A função 'loadComponent' não foi encontrada. Verifique se 'global.js' está sendo carregado corretamente.");
-    }
+    /* MUDANÇA AQUI:
+      A função 'loadComponent' foi REMOVIDA daqui.
+      O Jinja2 ({% include ... %}) no arquivo .html 
+      agora faz esse trabalho no servidor.
+    */
+    console.log("Script 'cadastro.js' carregado. Lógica do formulário (ViaCEP, etc.) ativa.");
 
     // --- Início da Lógica do Formulário de Doador ---
+    // (Esta parte permanece igual, pois é JavaScript puro do lado do cliente)
 
     // 1. Lógica da API ViaCEP
     const cepInput = document.getElementById('cep');
