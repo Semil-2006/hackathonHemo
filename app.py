@@ -206,6 +206,10 @@ def conscientizacao_alias():
 def dashboard_admin():
     return render_template('dashboard_admin.html')
 
+# Rota para página de enviar mensagem ao público-alvo (admin)
+@app.route('/admin_nova_campanha')
+def admin_nova_campanha():
+    return render_template('admin_nova_campanha.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
