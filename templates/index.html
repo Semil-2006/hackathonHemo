@@ -4,58 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inicío</title>
-    
-    <!-- CAMINHOS CORRIGIDOS -->
+
+    <!-- Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/index.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/speaking_ballon.css') }}" />
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/carousel.css') }}" />
   </head>
   <body>
-    <!-- 
-      PLACEHOLDER CORRIGIDO: 
-      Substituído <header id="header"> por {% include ... %}
-    -->
+
+    <!-- Header -->
     {% include 'components/header.html' %}
 
-    <!-- 
-      PLACEHOLDERS CORRIGIDOS: 
-      Substituídos por 'includes' do Jinja2.
-      Você DEVE ter esses arquivos na pasta 'templates/components/'.
-      Se não tiver, você pode remover essas linhas.
-    -->
+    <!-- Page components -->
     {% include 'components/apresentation.html' %}
-    <!-- {% include 'components/speaking_ballon.html' %} -->
     {% include 'components/about.html' %}
     {% include 'components/carousel.html' %}
 
-
     <!-- Seção de Dúvidas com Acordeão -->
     <section id="duvidas" class="bg-white text-red-600">
-      <div
-        class="max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center px-4 py-24"
-      >
-        <!-- Texto -->
-        <div
-          class="flex flex-col justify-center md:items-end text-center md:text-right"
-        >
-          <h1
-            class="mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl"
-          >
-            Dúvidas
-          </h1>
-          <p class="text-gray-900">
-            Tem alguma dúvida sobre como funciona o projeto ou como pode
-            contribuir? Aqui você encontra as dúvidas mais frequentes. Nosso
-            objetivo é tornar o processo simples, transparente e inspirador.
-          </p>
+      <div class="max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center px-4 py-24">
+        <div class="flex flex-col justify-center md:items-end text-center md:text-right">
+          <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl">Dúvidas</h1>
+          <p class="text-gray-900">Tem alguma dúvida sobre como funciona o projeto ou como pode contribuir? Aqui você encontra as dúvidas mais frequentes. Nosso objetivo é tornar o processo simples, transparente e inspirador.</p>
         </div>
 
+        <div>
         <!-- Acordeão -->
         <div>
           <div id="accordion-open" data-accordion="open">
@@ -265,20 +241,16 @@
                 </ul>
               </div>
             </div>
-          </div>
+
         </div>
       </div>
     </section>
 
-    <!-- 
-      PLACEHOLDER CORRIGIDO: 
-      Substituído <footer id="footer"> por {% include ... %}
-    -->
+    <!-- Footer -->
     {% include 'components/footer.html' %}
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
-    
-    <!-- CAMINHOS DE SCRIPT CORRIGIDOS -->
     <script src="{{ url_for('static', filename='scripts/global.js') }}" defer></script>
     <script src="{{ url_for('static', filename='scripts/index.js') }}" defer></script>
     <script src="{{ url_for('static', filename='scripts/carousel.js') }}" defer></script>

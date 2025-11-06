@@ -1,25 +1,23 @@
-<h1
-  class="text-red-600 text-4xl font-extrabold tracking-tight leading-none md:text-5xl text-center"
->
+<h1 class="text-red-600 text-4xl font-extrabold tracking-tight leading-none md:text-5xl text-center">
   Parceiros
 </h1>
 
 <div id="partners-carousel" class="carousel-container">
   <div class="carousel">
     <div class="carousel-item">
-      <img src="../pastas/assets/logo_unb.png" alt="unb" />
+      <img src="{{ url_for('static', filename='assets/logo_unb.png') }}" alt="unb" />
     </div>
     <div class="carousel-item">
-      <img src="../pastas/assets/logo_ft.png" alt="unb" />
+      <img src="{{ url_for('static', filename='assets/logo_ft.png') }}" alt="ft" />
     </div>
     <div class="carousel-item">
-      <img src="../pastas/assets/logo_ieee.png" alt="unb" />
+      <img src="{{ url_for('static', filename='assets/logo_ieee.png') }}" alt="ieee" />
     </div>
     <div class="carousel-item">
-      <img src="../pastas/assets/logo_edumi.png" alt="unb" />
+      <img src="{{ url_for('static', filename='assets/logo_edumi.png') }}" alt="edumi" />
     </div>
     <div class="carousel-item">
-      <img src="../pastas/assets/logo_orc.png" alt="unb" />
+      <img src="{{ url_for('static', filename='assets/logo_orc.png') }}" alt="orc" />
     </div>
   </div>
 </div>

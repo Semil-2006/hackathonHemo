@@ -3,27 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - Nosso Site</title>
+    <title>Cadastro</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
       rel="stylesheet"
     />
     
-    <!-- 
-      MUDANÇA 1: 
-      Caminhos de CSS corrigidos para usar 'url_for' e a pasta 'static'.
-    -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='../styles/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='../styles/cadastro.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/cadastro.css') }}">
 </head>
 <body>
 
-    <!-- 
-      MUDANÇA 2: 
-      O placeholder '<header id="header">' foi substituído 
-      pelo 'include' do Jinja2.
-    -->
     {% include 'components/header.html' %}
 
     <main class="main-content">
@@ -132,24 +123,9 @@
         </section>
     </main>
 
-    <!-- 
-      MUDANÇA 4: 
-      O placeholder '<footer>' foi substituído pelo 'include' do Jinja2.
-    -->
     {% include 'components/footer.html' %}
-
-    <!-- 
-      MUDANÇA 5: 
-      Caminhos de JS corrigidos para usar 'url_for' e a pasta 'static'.
-    -->
     <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/cadastro.js') }}"></script>
-    
-    <!-- 
-      MUDANÇA 6: 
-      Adicionado o script do Flowbite, 
-      necessário para o menu mobile do header funcionar.
-    -->
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
 </body>
 </html>

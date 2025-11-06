@@ -1,4 +1,4 @@
-<section class="bg-white text-red-600 py-8">
+<section id="about" class="bg-white text-red-600 py-8">
   <div
     class="max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-start"
   >
@@ -6,7 +6,7 @@
     <div class="flex justify-center md:justify-end pt-12">
       <div class="duo-container">
         <img
-          src="../assets/gotinha5.png"
+          src="{{ url_for('static', filename='assets/gotinha5.png') }}"
           alt="Mascote"
           class="duo-img w-full max-w-lg rounded-2xl object-cover"
         />

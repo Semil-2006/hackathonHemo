@@ -195,5 +195,17 @@ def conscientizacao():
     return render_template('conscientizacao.html', nome=nome, pontos=0)
 
 
+# Alias público para a página de conscientização (rota amigável)
+@app.route('/conscientizacao')
+def conscientizacao_alias():
+    return redirect(url_for('conscientizacao'))
+
+
+# Rota para o dashboard do admin
+@app.route('/dashboard_admin')
+def dashboard_admin():
+    return render_template('dashboard_admin.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)

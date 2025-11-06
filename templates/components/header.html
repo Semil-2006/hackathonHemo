@@ -9,18 +9,18 @@
     class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-2"
   >
     <a
-      href="index.html"
+      href="{{ url_for('index') }}"
       class="flex items-center space-x-3 rtl:space-x-reverse"
     >
       <img
-        src="assets/logo_hemocentro.png"
+        src="{{ url_for('static', filename='assets/logo_hemocentro.png') }}"
         class="h-20"
         alt="Hemocentro Logo"
       />
     </a>
     <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
       <a
-        href="login.html"
+        href="{{ url_for('login') }}"
         class="text-white bg-red-600 hover:bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center"
         >Entrar</a
       >
@@ -62,7 +62,7 @@
       >
         <li>
           <a
-            href="index.html"
+            href="{{ url_for('index') }}"
             class="block py-2 px-3 text-red-600 rounded-sm hover:text-red-500 md:hover:bg-transparent md:p-0"
             aria-current="page"
             >Início</a
@@ -91,7 +91,7 @@
         </li>
         <li>
           <a
-            href="campanhas.html"
+            href="{{ url_for('campanhas') }}"
             class="block py-2 px-3 text-red-600 rounded-sm hover:text-red-500 md:hover:bg-transparent md:p-0"
             >Campanhas</a
           >

@@ -15,11 +15,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard_admin.css') }}">
 </head>
 <body>
-    <!-- 
-      PLACEHOLDER CORRIGIDO: 
-      Substituído <header id="header"> por {% include ... %}
-    -->
-    {% include 'components/header.html' %}
+        <!-- Header include -->
+        {% include 'components/header.html' %}
     
     <!-- 
       NOTA: Seu HTML original estava quebrado aqui. 
@@ -91,11 +88,8 @@
         
     </main>
 
-    <!-- 
-      PLACEHOLDER CORRIGIDO: 
-      Substituído <footer id="footer"> por {% include ... %}
-    -->
-    {% include 'components/footer.html' %}
+        <!-- Footer include -->
+        {% include 'components/footer.html' %}
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
     
