@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+
+    <!-- 1. Flowbite CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- 2. CSS Global -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/global.css') }}"
+    />
+
+    <!-- 3. CSS Específico da Página de Login -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/login.css') }}"
+    />
+  </head>
+  <body>
+    <!-- 1. Carrega o Header -->
+    {% include 'components/header.html' %}
+
+    <!-- 2. Conteúdo Principal -->
+    <main class="main-content">
+      {% if sucesso %}
+      <div class="text-green-600 mt-3">
+        {% include 'components/sucess_pop_up.html' %} 
+      </div>
+      {% elif erro %}
+        {% include 'components/error_pop_up.html' %} 
+      {% endif %}
+
+      <section class="login-container">
+        <h1 class="form-title">Recuperar senha</h1>
+        <p class="form-subtitle">
+          Enviamos uma mensagem para o seu e-mail. Verifique sua caixa de
+          entrada e, se não encontrá-la, confira também a pasta de spam.
+        </p>
+
+        <form
+          class="email-form"
+          action="{{ url_for('email_submit') }}"
+          method="POST"
+        >
+          <div class="form-group">
+            <label for="email" class="form-label">Email:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              placeholder="nome@exemplo.com"
+              required
+            />
+          </div>
+          <button type="submit" class="submit-button">Enviar</button>
+        </form>
+      </section>
+    </main>
+
+    <!-- 3. Carrega o Footer -->
+    {% include 'components/footer.html' %}
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
+    <!-- (Deve conter a função 'loadComponent') -->
+    <script src="{{ url_for('static', filename='scripts/login.js') }}"></script>
+
+    <!-- Flowbite JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+  </body>
+</html>

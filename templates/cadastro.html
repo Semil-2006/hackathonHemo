@@ -3,25 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - Nosso Site</title>
+    <title>Cadastro</title>
 
     <link
-      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
+      href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
       rel="stylesheet"
     />
     
-    <link rel="stylesheet" href="styles/global.css">
-
-    <link rel="stylesheet" href="styles/cadastro.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/cadastro.css') }}">
 </head>
 <body>
 
-    <header id="header"></header>
+    {% include 'components/header.html' %}
 
     <main class="main-content">
         <section class="registration-container">
             
-            <a href="index.html" class="back-link">&larr; Voltar para Home</a>
+            <!-- 
+              MUDANÇA 3: 
+              Link de "Voltar" corrigido para usar 'url_for' (boa prática).
+              (Isso assume que você tem uma rota '@app.route("/")' chamada 'index' no seu app.py)
+            -->
+            <a href="{{ url_for('index') }}" class="back-link">&larr; Voltar para Home</a>
             
             <h1 class="form-title">Cadastro de Doador</h1>
             <p class="form-subtitle">Seus dados são essenciais para salvar vidas.</p>
@@ -89,6 +93,7 @@
                     </select>
                 </div>
 
+                <!-- Campos condicionais (controlados via JS) -->
                 <div id="pergunta_sim" class="form-group conditional-group">
                     <label for="primeira_vez" class="form-label">Qual foi a primeira vez?</label>
                     <input type="text" id="primeira_vez" name="primeira_vez" class="form-input">
@@ -118,9 +123,9 @@
         </section>
     </main>
 
-    <footer id="footer"></footer>
-
-    <script src="scripts/global.js"></script> <!-- (Deve conter a função 'loadComponent') -->
-    <script src="scripts/cadastro.js"></script>
+    {% include 'components/footer.html' %}
+    <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/cadastro.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
 </body>
 </html>

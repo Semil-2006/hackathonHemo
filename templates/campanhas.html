@@ -3,19 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campanhas de Doação - Hemocentro</title>
+    <title>Campanhas de Doação</title>
 
     <link
-      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
+      href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
       rel="stylesheet"
     />
     
-    <link rel="stylesheet" href="styles/global.css">
-    <link rel="stylesheet" href="styles/campanhas.css">
+    <!-- 
+      MUDANÇA 1: Caminhos de CSS corrigidos para a pasta 'static' 
+    -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/campanhas.css') }}">
 </head>
 <body>
 
-    <header id="header"></header>
+    <!-- 
+      MUDANÇA 2: 'include' do Jinja2 para o header 
+    -->
+    {% include 'components/header.html' %}
+
     <main class="main-content">
         <!-- Conteúdo Principal -->
         <div class="campanhas-container">
@@ -24,7 +31,8 @@
                 <div class="mascote-section">
                     <div class="mascote-card">
                         <figure class="mascote-figure">
-                            <img class="mascote-image" src="assets/gotinha1.png" alt="Hemo - Molécula Guia">
+                            <!-- MUDANÇA 3: Caminho da imagem corrigido -->
+                            <img class="mascote-image" src="{{ url_for('static', filename='assets/gotinha1.png') }}" alt="Hemo - Molécula Guia" onerror="this.src='https://placehold.co/150x150/fecaca/b91c1c?text=Hemo';">
                             <figcaption class="mascote-caption">
                                 Olá, sou Hemo sua molécula guia!
                                 <br>Clique para participar das campanhas apenas quando seu sangue for compatível com quem precisa.
@@ -61,7 +69,8 @@
                                     <th scope="col" class="table-head">Ação</th>
                                 </tr>
                             </thead>
-                            <tbody id="campanhasTable">
+                            <tbody id="campanhasTableBody">
+                                <!-- O JS vai preencher esta linha -->
                                 <tr class="table-row">
                                     <td colspan="3" class="table-loading">
                                         Carregando campanhas...
@@ -103,10 +112,17 @@
         </div>
     </div>
 
-    <footer id="footer"></footer>
+    <!-- 
+      MUDANÇA 4: 'include' do Jinja2 para o footer 
+    -->
+    {% include 'components/footer.html' %}
 
-    <script src="scripts/global.js"></script>
-    <script src="scripts/list_campanhas.js"></script>
-    <script src="scripts/campanhas.js"></script>
+    <!-- 
+      MUDANÇA 5: Caminhos de JS corrigidos para a pasta 'static' 
+    -->
+    <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/list_campanhas.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/campanhas.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
 </body>
 </html>

@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Perfil - Nosso Site</title>
+    <title>Meu Perfil</title>
     
     <!-- 1. Flowbite CSS -->
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
 
-    <!-- 2. CSS Global -->
-    <link rel="stylesheet" href="styles/global.css">
-    
-    <!-- 3. CSS Específico da Página de Perfil -->
-    <link rel="stylesheet" href="styles/perfil.css">
+    <!-- 
+      CAMINHOS CORRIGIDOS: 
+      Atualizados para usar 'url_for' e a pasta 'static'.
+    -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/perfil.css') }}">
 </head>
 <body>
 
-    <!-- 1. Carrega o Header -->
-    <header id="header"></header>
+        <!-- Header include -->
+        {% include 'components/header.html' %}
     
     <!-- 2. Conteúdo Principal -->
     <main class="main-content">
@@ -40,12 +41,18 @@
                             <svg class="level-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                             </svg>
-                            Carregando...
+                            <!-- 
+                              MUDANÇA IMPORTANTE: 
+                              O 'fetch' do 'perfil.js' foi removido.
+                              Agora, o Flask/Jinja2 insere os dados do usuário
+                              diretamente do 'app.py' (render_template).
+                            -->
+                            {{ usuario.nivel | default('Doador Iniciante') }}
                         </span>
                     </div>
                     <!-- Barra de Progresso -->
                     <div class="progress-bar-container">
-                        <div class="progress-bar" id="user-progress" style="width: 0%;"></div>
+                        <div class="progress-bar" id="user-progress" style="width: {{ usuario.progressoPercentual | default(0) }}%;"></div>
                     </div>
                     <span class="progress-label">Progresso para Doador Comprometido</span>
                 </div>
@@ -55,17 +62,22 @@
                     <h3 class="badges-title">Conquistas</h3>
                     <div class="badges-container" id="user-badges">
                         <!-- 
-                          Placeholders com IMAGENS. 
-                          Troque o 'src' pelo caminho real do seu 'assets/' 
+                          Os dados agora vêm do 'app.py' (variável 'usuario.selos')
                         -->
-                        <div class="badge" title="Primeira Doação">
-                            <img src="assets/emblemas/1.png" alt="Selo Primeira Doação" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
-                        </div>
-                        <div class="badge" title="Doador Fiel (3 doações)">
-                            <img src="assets/emblemas/2.png" alt="Selo Doador Fiel" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
-                        </div>
+                        {% if usuario.selos %}
+                            {% for selo in usuario.selos %}
+                                <div class="badge" title="{{ selo.nome }}">
+                                    <!-- CAMINHO DA IMAGEM CORRIGIDO: -->
+                                    <img src="{{ url_for('static', filename=selo.caminhoImagem) }}" alt="{{ selo.nome }}" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="info-data">Nenhuma conquista ainda.</p>
+                        {% endif %}
+                        
+                        <!-- Exemplo de selo bloqueado (pode vir da lógica do app.py) -->
                         <div class="badge badge-locked" title="Herói (10 doações)">
-                            <img src="assets/emblemas/3.png" alt="Selo Herói (Bloqueado)" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
+                            <img src="{{ url_for('static', filename='assets/emblemas/3.png') }}" alt="Selo Herói (Bloqueado)" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
                         </div>
                     </div>
                 </div>
@@ -78,27 +90,28 @@
                     <!-- Nome Completo -->
                     <div class="info-item">
                         <label class="info-label">Nome Completo</label>
-                        <p class="info-data" id="user-name">Carregando...</p>
+                        <!-- DADOS VINDOS DO FLASK: -->
+                        <p class="info-data" id="user-name">{{ usuario.nome }}</p>
                     </div>
                     <!-- Email -->
                     <div class="info-item">
                         <label class="info-label">Email</label>
-                        <p class="info-data" id="user-email">Carregando...</p>
+                        <p class="info-data" id="user-email">{{ usuario.email }}</p>
                     </div>
                     <!-- Telefone -->
                     <div class="info-item">
                         <label class="info-label">Telefone</label>
-                        <p class="info-data" id="user-phone">Carregando...</p>
+                        <p class="info-data" id="user-phone">{{ usuario.telefone }}</p>
                     </div>
                     <!-- Data de Nascimento -->
                     <div class="info-item">
                         <label class="info-label">Data de Nascimento</label>
-                        <p class="info-data" id="user-dob">Carregando...</p>
+                        <p class="info-data" id="user-dob">{{ usuario.data_nascimento }}</p>
                     </div>
                     <!-- Gênero -->
                     <div class="info-item">
                         <label class="info-label">Gênero</label>
-                        <p class="info-data" id="user-gender">Carregando...</p>
+                        <p class="info-data" id="user-gender">{{ usuario.genero }}</p>
                     </div>
                 </div>
             </div>
@@ -110,12 +123,12 @@
                     <!-- CEP -->
                     <div class="info-item">
                         <label class="info-label">CEP</label>
-                        <p class="info-data" id="user-cep">Carregando...</p>
+                        <p class="info-data" id="user-cep">{{ usuario.cep }}</p>
                     </div>
                     <!-- Endereço Completo -->
                     <div class="info-item info-item-full">
                         <label class="info-label">Endereço</label>
-                        <p class="info-data" id="user-address">Carregando...</p>
+                        <p class="info-data" id="user-address">{{ usuario.endereco }}</p>
                     </div>
                 </div>
             </div>
@@ -127,36 +140,34 @@
                     <!-- Tipo Sanguíneo -->
                     <div class="info-item">
                         <label class="info-label">Tipo Sanguíneo</label>
-                        <p class="info-data info-data-highlight" id="user-blood-type">...</p>
+                        <p class="info-data info-data-highlight" id="user-blood-type">{{ usuario.tipo_sanguineo }}</p>
                     </div>
                     <!-- Já Doou? -->
                     <div class="info-item">
                         <label class="info-label">Já doou sangue?</label>
-                        <p class="info-data" id="user-has-donated">Carregando...</p>
+                        <p class="info-data" id="user-has-donated">{{ "Sim" if usuario.ja_doou == 'sim' else "Não" }}</p>
                     </div>
                     <!-- Primeira Doação (Campo condicional) -->
-                    <div class="info-item" id="first-donation-item" style="display: none;">
+                    <div class="info-item" id="first-donation-item" style="{{ 'display: grid;' if usuario.ja_doou == 'sim' else 'display: none;' }}">
                         <label class="info-label">Primeira vez</label>
-                        <p class="info-data" id="user-first-donation">Carregando...</p>
+                        <p class="info-data" id="user-first-donation">{{ usuario.primeira_vez }}</p>
                     </div>
                 </div>
             </div>
-            
-
             
             <button type="button" class="edit-button">Editar Perfil</button>
 
         </section>
     </main>
 
-    <!-- 3. Carrega o Footer -->
-    <footer id="footer"></footer>
+        <!-- Footer include -->
+        {% include 'components/footer.html' %}
 
-    <!-- Scripts -->
-    <script src="scripts/global.js"></script> <!-- (Deve conter a função 'loadComponent') -->
-    <script src="scripts/perfil.js"></script>
-
-    <!-- Flowbite JS -->
+    <!-- 
+      CAMINHOS DE SCRIPT CORRIGIDOS: 
+    -->
+    <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/perfil.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 <section
   style="
-    background-image: url('../pastas/assets/hemocentro-brasilia.png');
+    background-image: url('{{ url_for("static", filename="assets/hemocentro-brasilia.png") }}');
     background-position: center -120px; /* sobe 60px */
     background-repeat: no-repeat;
     background-size: cover;
@@ -25,7 +25,7 @@
       class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0"
     >
       <a
-        href="campanhas.html"
+        href="{{ url_for('campanhas') }}"
         class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300"
       >
         Doar
