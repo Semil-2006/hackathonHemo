@@ -1,0 +1,44 @@
+.carousel-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.carousel {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item {
+  flex: 0 0 auto;
+  width: 25%; /* mostra 4 itens em telas grandes */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+.carousel-item img {
+  max-width: 100px;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(100%);
+  transition: filter 0.3s;
+}
+
+.carousel-item img:hover {
+  filter: grayscale(0%);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .carousel-item {
+    width: 50%; /* 2 itens por vez */
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-item {
+    width: 100%; /* 1 item por vez */
+  }
+}
