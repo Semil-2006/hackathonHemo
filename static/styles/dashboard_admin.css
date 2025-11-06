@@ -134,7 +134,7 @@ body {
 }
 /* Estilos dos Botões de Ação */
 .btn-campaign {
-  background-color: var(--color-action-campaign); /* Indigo */
+  background-color: #6559e2; /* Indigo */
   /* Garante que ele se alinhe corretamente com os inputs (40px é o valor do height do input + padding) */
   height: 40px;
   align-self: flex-end;
