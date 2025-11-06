@@ -132,6 +132,16 @@ body {
   transition: background-color 0.2s;
   color: white;
 }
+/* Estilos dos Botões de Ação */
+.btn-campaign {
+  background-color: var(--color-action-campaign); /* Indigo */
+  /* Garante que ele se alinhe corretamente com os inputs (40px é o valor do height do input + padding) */
+  height: 40px;
+  align-self: flex-end;
+}
+.btn-campaign:hover {
+  background-color: #4338ca; /* Indigo-700 */
+}
 .btn-csv {
   background-color: var(--color-action-blue);
 }
