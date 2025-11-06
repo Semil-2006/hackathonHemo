@@ -38,6 +38,22 @@
             background-color: #cccccc;
             cursor: not-allowed;
         }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .conditional-group {
+            display: none; /* Inicialmente escondido */
+        }
     </style>
 </head>
 <body>
@@ -47,11 +63,6 @@
     <main class="main-content">
         <section class="registration-container">
             
-            <!-- 
-              MUDANÇA 3: 
-              Link de "Voltar" corrigido para usar 'url_for' (boa prática).
-              (Isso assume que você tem uma rota '@app.route("/")' chamada 'index' no seu app.py)
-            -->
             <a href="{{ url_for('index') }}" class="back-link">&larr; Voltar para Home</a>
             
             <h1 class="form-title">Cadastro de Doador</h1>
@@ -67,6 +78,17 @@
                 <div class="form-group">
                     <label for="email" class="form-label">Email:</label>
                     <input type="email" id="email" name="email" class="form-input" placeholder="nome@exemplo.com" required>
+                </div>
+
+                <div class="form-group password-container">
+                    <label for="senha" class="form-label">Senha:</label>
+                    <input type="password" id="senha" name="senha" class="form-input" required>
+                    <span class="password-toggle" onclick="togglePassword()">
+                        <svg id="eye-icon" class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>
+                        </svg>
+                    </span>
                 </div>
                 
                 <div class="form-group">
@@ -128,7 +150,7 @@
 
                 <div id="pergunta_nao" class="form-group conditional-group">
                     <label for="interesse" class="form-label">Tem interesse em doar sangue?</label>
-                    <select id="interesse" name="interesse" class="form-input" required>
+                    <select id="interesse" name="interesse" class="form-input">
                         <option value="">Selecione</option>
                         <option value="sim">Sim</option>
                         <option value="nao">Não</option>
@@ -141,7 +163,7 @@
                         Autorizo receber mensagens
                     </label>
                 </div>
-                 <div class="form-group-inline">
+                <div class="form-group-inline">
                     <input id="autoriza_dados" name="autoriza_dados" type="checkbox" value="sim" class="form-checkbox" required />
                     <label for="autoriza_dados" class="form-label-inline">
                         Autorizo o uso dos meus dados conforme a LGPD
@@ -155,7 +177,7 @@
     </main>
 
     <footer class="footer">
-        <!-- Opções removidas conforme solicitado; apenas a seta para voltar ao topo -->
+        <!-- Opções removidas; apenas a seta para voltar ao topo -->
     </footer>
 
     <button id="back-to-top" class="back-to-top">&uarr;</button>
@@ -164,6 +186,18 @@
     <script src="{{ url_for('static', filename='scripts/cadastro.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
     <script>
+        // Função para alternar visibilidade da senha
+        function togglePassword() {
+            const passwordInput = document.getElementById('senha');
+            const eyeIcon = document.getElementById('eye-icon');
+            const isPassword = passwordInput.type === 'password';
+            
+            passwordInput.type = isPassword ? 'text' : 'password';
+            eyeIcon.innerHTML = isPassword 
+                ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>`
+                : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>`;
+        }
+
         // Função para voltar ao topo
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -188,9 +222,31 @@
         // Inicialmente desabilitado
         submitBtn.disabled = !authDados.checked;
 
-        // Evento de mudança
+        // Evento de mudança para o checkbox
         authDados.addEventListener('change', () => {
             submitBtn.disabled = !authDados.checked;
+        });
+
+        // Controle dos campos condicionais
+        const jaDoouSelect = document.getElementById('ja_doou');
+        const perguntaSim = document.getElementById('pergunta_sim');
+        const perguntaNao = document.getElementById('pergunta_nao');
+        const interesseSelect = document.getElementById('interesse');
+
+        jaDoouSelect.addEventListener('change', () => {
+            if (jaDoouSelect.value === 'sim') {
+                perguntaSim.style.display = 'block';
+                perguntaNao.style.display = 'none';
+                interesseSelect.removeAttribute('required');
+            } else if (jaDoouSelect.value === 'nao') {
+                perguntaSim.style.display = 'none';
+                perguntaNao.style.display = 'block';
+                interesseSelect.setAttribute('required', 'required');
+            } else {
+                perguntaSim.style.display = 'none';
+                perguntaNao.style.display = 'none';
+                interesseSelect.removeAttribute('required');
+            }
         });
     </script>
 </body>

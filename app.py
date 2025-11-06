@@ -38,30 +38,39 @@ mail = Mail(app)
 # Banco de Dados
 # -----------------------------
 def init_db():
-    if not os.path.exists('database.db'):
-        conn = sqlite3.connect('database.db')
-        c = conn.cursor()
-        c.execute('''
-            CREATE TABLE usuarios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome TEXT,
-                email TEXT,
-                telefone TEXT,
-                tipo_sanguineo TEXT,
-                data_nascimento TEXT,
-                genero TEXT,
-                cep TEXT,
-                endereco TEXT,
-                ja_doou TEXT,
-                primeira_vez TEXT,
-                interesse TEXT,
-                autoriza_msg INTEGER,
-                autoriza_dados INTEGER,
-                pontos INTEGER DEFAULT 0
-            )
-        ''')
-        conn.commit()
-        conn.close()
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    
+    # Criar tabela usuarios se não existir
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT,
+            email TEXT,
+            telefone TEXT,
+            tipo_sanguineo TEXT,
+            data_nascimento TEXT,
+            genero TEXT,
+            cep TEXT,
+            endereco TEXT,
+            ja_doou TEXT,
+            primeira_vez TEXT,
+            interesse TEXT,
+            autoriza_msg INTEGER,
+            autoriza_dados INTEGER,
+            pontos INTEGER DEFAULT 0,
+            senha TEXT
+        )
+    ''')
+
+    # Verificar se a coluna senha existe, senão adicionar
+    c.execute("PRAGMA table_info(usuarios)")
+    columns = [col[1] for col in c.fetchall()]
+    if 'senha' not in columns:
+        c.execute('ALTER TABLE usuarios ADD COLUMN senha TEXT')
+
+    conn.commit()
+    conn.close()
 
 init_db()
 
@@ -112,16 +121,17 @@ def submit():
         INSERT INTO usuarios (
             nome, email, telefone, tipo_sanguineo, data_nascimento, genero,
             cep, endereco, ja_doou, primeira_vez, interesse,
-            autoriza_msg, autoriza_dados, pontos
+            autoriza_msg, autoriza_dados, pontos, senha
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
     ''', (
         data.get('nome'), data.get('email'), data.get('telefone'),
         data.get('tipo_sanguineo'), data.get('data_nascimento'),
         data.get('genero'), data.get('cep'), data.get('endereco'),
         data.get('ja_doou'), data.get('primeira_vez'), data.get('interesse'),
-        1 if data.get('autoriza_msg') == 'on' else 0,
-        1 if data.get('autoriza_dados') == 'on' else 0
+        1 if data.get('autoriza_msg') == 'sim' else 0,
+        1 if data.get('autoriza_dados') == 'sim' else 0,
+        data.get('senha')
     ))
     conn.commit()
     user_id = c.lastrowid
