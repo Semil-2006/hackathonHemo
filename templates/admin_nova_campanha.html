@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Campanha - Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
+    
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard_admin.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/admin_nova_campanha.css') }}">
+</head>
+<body>
+    {% include 'components/header.html' %}
+
+    <main class="main-content-campaign">
+        
+        <h1><a href="{{ url_for('dashboard_admin') }}" style="text-decoration: none;">&larr;</a> Nova Campanha</h1>
+        <p>Preencha os campos abaixo para enviar uma nova campanha.</p>
+
+        <form id="campaign-form">
+
+            <fieldset>
+                <legend>1. Segmentação de Doadores</legend>
+                <p class="fieldset-subtitle">Selecione quem irá receber esta mensagem.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="seg-tipo-sanguineo" class="block mb-2 text-sm font-medium text-gray-900">Tipo Sanguíneo</label>
+                        <select id="seg-tipo-sanguineo" multiple class="bg-gray-50 border ...">
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                        <small>Nota: Apenas doadores com consentimento explícito.</small>
+                    </div>
+                   
+</body>
+
+</html>
