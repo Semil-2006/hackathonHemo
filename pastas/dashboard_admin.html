@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Administrador</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
+      rel="stylesheet"
+    />
+    
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/dashboard_admin.css">
+</head>
+<body>
+    <header id="header"></header>
+    
+    <aside class="sidebar">
+    <div class="panel filters">
+    <h3>Filtros</h3>
+    <label for="citySelect">Cidade</label>
+    <select id="citySelect"><option value="all">Todas as cidades</option></select>
+    <label for="periodSelect">Período</label>
+    <select id="periodSelect">
+    <option value="30">Últimos 30 dias</option>
+    <option value="90">Últimos 90 dias</option>
+    <option value="180">Últimos 180 dias</option>
+    </select>
+    <label for="channelSelect">Canal preferencial</label>
+    <select id="channelSelect">
+    <option value="all">Todos</option>
+    <option value="email">E-mail</option>
+    <option value="sms">SMS</option>
+    </select>
+
+
+    <div style="margin-top:14px">
+    <h4 style="margin:0;color:var(--muted)">Peso para ranking</h4>
+    <div class="weight-row"><label style="width:110px">Potencial</label><input id="wPotential" type="range" min="0" max="10" value="6" /><span id="wPotentialVal">6</span></div>
+    <div class="weight-row"><label style="width:110px">Engajamento</label><input id="wEngage" type="range" min="0" max="10" value="3" /><span id="wEngageVal">3</span></div>
+    <div class="weight-row"><label style="width:110px">Logística</label><input id="wLog" type="range" min="0" max="10" value="1" /><span id="wLogVal">1</span></div>
+
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+    <button id="applyWeights">Aplicar pesos</button>
+    <button id="resetWeights" class="link-like small">Reset</button>
+    </div>
+    </div>
+
+
+    <div style="margin-top:16px;">
+    <h4 style="margin:0;color:var(--muted)">Simulação</h4>
+    <label style="margin-top:8px">Data da campanha</label>
+    <input id="simDate" type="date" />
+    <label style="margin-top:8px">Duração (horas)</label>
+    <input id="simHours" type="number" min="1" max="12" value="6" />
+    <div style="display:flex;gap:8px;margin-top:8px">
+    <button id="runSim">Rodar simulação</button>
+    <button id="clearSim" class="link-like small">Limpar</button>
+    </div>
+    </div>
+
+
+    <div class="note">Observação: o sistema usa apenas dados agregados e preditivos da base existente. Nenhum dado individual é exibido.</div>
+    </div>
+
+
+<div class="panel" style="margin-top:12px">
+<h3>Métricas rápidas</h3>
+<div class="metrics">
+<div class="metric"><h3>População alvo (total)</h3><p id="mTotal">—</p></div>
+<div class="metric"><h3>Estimativa média</h3><p id="mAvg">—</p></div>
+</section>
+
+
+</section>
+
+    <footer id="footer"></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <script src="scripts/global.js" defer></script>
+    <script src="scripts/carousel.js" defer></script>
+    <script src="scripts/dashboard_admin.js" defer></script>
+</body>
+</html>

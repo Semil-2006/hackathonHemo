@@ -1,0 +1,9 @@
+:root{
+    --primary-color: #4CAF50;
+    --secondary-color: #FF9800;
+    --background-color: #F5F5F5;
+    --text-color: #333333;
+}
+html {
+  scroll-behavior: smooth;
+}

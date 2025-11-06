@@ -42,3 +42,24 @@
     width: 100%; /* 1 item por vez */
   }
 }
+
+/* Esconder quaisquer setas/controles que possam ser injetados pelo CSS/JS de terceiros
+   (Flowbite, Swiper, Flickity, etc.). Usamos seletores específicos dentro do container
+   do carrossel para evitar afetar outros botões na página. */
+#partners-carousel .carousel-controls,
+#partners-carousel .carousel-arrow,
+#partners-carousel .carousel-control,
+#partners-carousel button,
+#partners-carousel .swiper-button-next,
+#partners-carousel .swiper-button-prev,
+#partners-carousel [data-carousel-prev],
+#partners-carousel [data-carousel-next],
+#partners-carousel .flickity-prev-next-button,
+#partners-carousel .flickity-button,
+#partners-carousel .controls,
+#partners-carousel .carousel-container::before,
+#partners-carousel .carousel-container::after {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

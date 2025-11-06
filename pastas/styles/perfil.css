@@ -1,0 +1,231 @@
+/* --- Estilização da Página de Perfil --- */
+
+/* Container principal.
+  Usa 'flex-grow: 1' para empurrar o footer para baixo.
+*/
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Alinha no topo */
+    padding: 2rem 1rem;
+    padding-bottom: 5rem; /* Espaço extra no final */
+    padding-top: 100px; /* Espaço para o header fixo */
+    flex-grow: 1; 
+}
+
+/* Container do perfil */
+.profile-container {
+    width: 100%;
+    max-width: 800px; /* Mais largo que o cadastro */
+}
+
+.profile-title {
+    font-size: 2.25rem; /* text-4xl */
+    font-weight: 700; /* font-bold */
+    color: #111827; /* text-gray-900 */
+    margin-bottom: 0.5rem;
+}
+
+.profile-subtitle {
+    font-size: 1.125rem; /* text-lg */
+    color: #6b7280; /* text-gray-500 */
+    margin-bottom: 2.5rem;
+}
+
+/* Card de informações */
+.profile-card {
+    background-color: #ffffff;
+    border-radius: 0.75rem; /* rounded-lg */
+    border: 1px solid #e5e7eb; /* border-gray-200 */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    margin-bottom: 2rem;
+    overflow: hidden; /* Para o padding funcionar com o título */
+}
+
+.card-title {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 600;
+    color: #111827;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Grid para os itens de informação */
+.info-grid {
+    display: grid;
+    /* Cria 2 colunas em telas médias (md) e 1 em telas pequenas */
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+/* Em telas maiores, usa 2 colunas */
+@media (min-width: 768px) {
+    .info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.info-item {
+    padding: 0.25rem 0;
+}
+
+/* Faz um item ocupar a largura total no grid */
+.info-item-full {
+    grid-column: 1 / -1; /* Ocupa todas as colunas */
+}
+
+.info-label {
+    display: block;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    color: #6b7280; /* text-gray-500 */
+    margin-bottom: 0.25rem;
+}
+
+.info-data {
+    font-size: 1rem; /* text-base */
+    font-weight: 500;
+    color: #1f2937; /* text-gray-800 */
+}
+
+/* Destaque para o tipo sanguíneo */
+.info-data-highlight {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: #b91c1c; /* text-red-700 */
+}
+
+/* --- Novos Estilos de Gamificação --- */
+
+.gamification-level {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.level-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.level-title {
+    font-size: 0.875rem; /* text-sm */
+    color: #6b7280; /* text-gray-500 */
+}
+
+.level-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600;
+    color: #1d4ed8; /* text-blue-700 */
+}
+
+.level-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.progress-bar-container {
+    width: 100%;
+    background-color: #e5e7eb; /* bg-gray-200 */
+    border-radius: 9999px;
+    height: 0.75rem; /* h-3 */
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #1d4ed8; /* bg-blue-700 */
+    border-radius: 9999px;
+    transition: width 0.5s ease-in-out;
+}
+
+.progress-label {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-align: right;
+}
+
+.badges-section {
+    padding: 1.5rem;
+}
+
+.badges-title {
+    font-size: 1rem; /* text-base */
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.badges-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Estilo do container do selo (círculo) */
+.badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem; /* w-16 */
+    height: 4rem; /* h-16 */
+    background-color: #f3f4f6; /* bg-gray-100 */
+    border-radius: 50%;
+    border: 2px solid #e5e7eb;
+    cursor: help; /* Mostra o 'title' no hover */
+    padding: 0.5rem; /* Espaçamento interno para a imagem */
+    box-sizing: border-box; /* Garante que o padding não aumente o tamanho */
+}
+
+/* Estilo da imagem dentro do selo */
+.badge-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Garante que a imagem caiba sem distorcer */
+}
+
+.badge-locked {
+    filter: grayscale(1);
+    opacity: 0.6;
+}
+
+/* --- Fim dos Estilos de Gamificação --- */
+
+
+/* Botão de Editar */
+.edit-button {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    margin-top: 1rem; /* Espaço após o último card */
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    color: #ffffff; /* text-white */
+    background-color: #b91c1c; /* Botão vermelho */
+    border: none;
+    border-radius: 0.5rem; /* rounded-lg */
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+@media (min-width: 768px) {
+    .edit-button {
+        width: auto; /* Botão menor em telas grandes */
+    }
+}
+
+.edit-button:hover {
+    background-color: #dc2626; /* Hover vermelho */
+}
+
+.edit-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.4); /* Focus vermelho */
+}

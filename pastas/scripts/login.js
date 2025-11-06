@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof loadComponent === 'function') {
         
         // Carrega os componentes globais
-        loadComponent("header-placeholder", "components/header.html");
-        loadComponent("footer-placeholder", "components/footer.html");
+        loadComponent("header", "components/header.html");
+        loadComponent("footer", "components/footer.html");
 
     } else {
         console.error("A função 'loadComponent' não foi encontrada. Verifique se 'global.js' está sendo carregado corretamente.");

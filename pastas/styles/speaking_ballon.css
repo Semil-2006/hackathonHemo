@@ -1,0 +1,164 @@
+:root {
+  --duo-green: #ffffff;
+  --duo-green-dark: #ffffff;
+  --text: #1b1b1b;
+  --shadow: 0 8px 20px rgba(26, 26, 26, 0.12);
+  --radius: 20px;
+}
+
+/* ========================= */
+/* 🎯 CONTAINER DO MASCOTE   */
+/* ========================= */
+.duo-container {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  margin-bottom: 60px; /* espaço pra sombra */
+}
+
+/* IMAGEM DO MASCOTE */
+.duo-img {
+  width: 420px; /* mascote maior */
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  animation: bob 3s ease-in-out infinite;
+  transform-origin: 50% 70%;
+  position: relative;
+  z-index: 2;
+}
+
+/* 🌑 Sombra circular abaixo do mascote */
+.duo-container::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px; /* tamanho da sombra */
+  height: 40px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.25) 0%,
+    rgba(0, 0, 0, 0.05) 70%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  z-index: 1;
+  filter: blur(2px);
+  opacity: 0.9;
+}
+
+/* Animação do mascote (flutuar) */
+@keyframes bob {
+  0% { transform: translateY(8px) rotate(0deg); }
+  50% { transform: translateY(0px) rotate(-2deg); }
+  100% { transform: translateY(8px) rotate(0deg); }
+}
+
+/* ========================= */
+/* 💬 BALÃO DE FALA          */
+/* ========================= */
+
+/* Container do balão */
+.duo-wrapper {
+  position: absolute;
+  top: 40px; /* balão mais abaixo (antes era negativo) */
+  left: -40px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+  max-width: 720px;
+  width: fit-content;
+  animation: floaty 3s ease-in-out infinite;
+  z-index: 3;
+}
+
+/* Balão */
+.duo-bubble {
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(180deg, var(--duo-green) 0%, var(--duo-green-dark) 100%);
+  color: var(--text);
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  line-height: 1.3;
+  border: 2px solid #6b6b6b;
+  animation: pop 0.6s ease-out;
+  width: fit-content;
+  max-width: 400px;
+  word-wrap: break-word;
+}
+
+/* Cauda do balão (apontando para baixo à direita) */
+.duo-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -12px;
+  right: 20px;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(180deg, var(--duo-green) 0%, var(--duo-green-dark) 100%);
+  transform: rotate(45deg);
+  border: 2px solid #6b6b6b;
+  border-top: none;
+  border-left: none;
+  box-shadow: rgba(0, 0, 0, 0.06) 0 6px 12px;
+}
+
+/* Texto dentro do balão */
+.duo-bubble h3 {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  color: var(--text);
+  text-shadow: rgba(6,49,26,0.08) 0 1px 0;
+}
+
+.duo-bubble p {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.98;
+}
+
+/* ========================= */
+/* ✨ ANIMAÇÕES GERAIS       */
+/* ========================= */
+@keyframes pop {
+  0% { transform: scale(0.3); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes floaty {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+/* ========================= */
+/* 📱 RESPONSIVIDADE         */
+/* ========================= */
+@media (max-width: 420px) {
+  .duo-img {
+    width: 280px;
+  }
+
+  .duo-wrapper {
+    top: 20px;
+    left: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .duo-bubble::after {
+    left: 14px;
+    right: auto;
+  }
+
+  .duo-container::after {
+    width: 120px;
+    height: 30px;
+  }
+}

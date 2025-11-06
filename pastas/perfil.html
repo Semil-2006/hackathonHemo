@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Nosso Site</title>
+    
+    <!-- 1. Flowbite CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
+
+    <!-- 2. CSS Global -->
+    <link rel="stylesheet" href="styles/global.css">
+    
+    <!-- 3. CSS Específico da Página de Perfil -->
+    <link rel="stylesheet" href="styles/perfil.css">
+</head>
+<body>
+
+    <!-- 1. Carrega o Header -->
+    <header id="header"></header>
+    
+    <!-- 2. Conteúdo Principal -->
+    <main class="main-content">
+        <section class="profile-container" id="profile-container">
+            
+            <h1 class="profile-title">Meu Perfil</h1>
+            <p class="profile-subtitle">Gerencie suas informações pessoais e de doador.</p>
+
+
+            <!-- Card de Gamificação -->
+            <div class="profile-card">
+                <h2 class="card-title">Minha Jornada de Doador</h2>
+                
+                <!-- Nível e Progresso -->
+                <div class="gamification-level">
+                    <div class="level-info">
+                        <span class="level-title">Nível Atual:</span>
+                        <span class="level-name" id="user-level">
+                            <!-- Ícone de SVG para o nível -->
+                            <svg class="level-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            Carregando...
+                        </span>
+                    </div>
+                    <!-- Barra de Progresso -->
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="user-progress" style="width: 0%;"></div>
+                    </div>
+                    <span class="progress-label">Progresso para Doador Comprometido</span>
+                </div>
+                
+                <!-- Conquistas (Selos) -->
+                <div class="badges-section">
+                    <h3 class="badges-title">Conquistas</h3>
+                    <div class="badges-container" id="user-badges">
+                        <!-- 
+                          Placeholders com IMAGENS. 
+                          Troque o 'src' pelo caminho real do seu 'assets/' 
+                        -->
+                        <div class="badge" title="Primeira Doação">
+                            <img src="assets/emblemas/1.png" alt="Selo Primeira Doação" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
+                        </div>
+                        <div class="badge" title="Doador Fiel (3 doações)">
+                            <img src="assets/emblemas/2.png" alt="Selo Doador Fiel" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
+                        </div>
+                        <div class="badge badge-locked" title="Herói (10 doações)">
+                            <img src="assets/emblemas/3.png" alt="Selo Herói (Bloqueado)" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card de Informações Pessoais -->
+            <div class="profile-card">
+                <h2 class="card-title">Informações Pessoais</h2>
+                <div class="info-grid">
+                    <!-- Nome Completo -->
+                    <div class="info-item">
+                        <label class="info-label">Nome Completo</label>
+                        <p class="info-data" id="user-name">Carregando...</p>
+                    </div>
+                    <!-- Email -->
+                    <div class="info-item">
+                        <label class="info-label">Email</label>
+                        <p class="info-data" id="user-email">Carregando...</p>
+                    </div>
+                    <!-- Telefone -->
+                    <div class="info-item">
+                        <label class="info-label">Telefone</label>
+                        <p class="info-data" id="user-phone">Carregando...</p>
+                    </div>
+                    <!-- Data de Nascimento -->
+                    <div class="info-item">
+                        <label class="info-label">Data de Nascimento</label>
+                        <p class="info-data" id="user-dob">Carregando...</p>
+                    </div>
+                    <!-- Gênero -->
+                    <div class="info-item">
+                        <label class="info-label">Gênero</label>
+                        <p class="info-data" id="user-gender">Carregando...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card de Endereço -->
+            <div class="profile-card">
+                <h2 class="card-title">Endereço</h2>
+                <div class="info-grid">
+                    <!-- CEP -->
+                    <div class="info-item">
+                        <label class="info-label">CEP</label>
+                        <p class="info-data" id="user-cep">Carregando...</p>
+                    </div>
+                    <!-- Endereço Completo -->
+                    <div class="info-item info-item-full">
+                        <label class="info-label">Endereço</label>
+                        <p class="info-data" id="user-address">Carregando...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card de Doador -->
+            <div class="profile-card">
+                <h2 class="card-title">Informações de Doador</h2>
+                <div class="info-grid">
+                    <!-- Tipo Sanguíneo -->
+                    <div class="info-item">
+                        <label class="info-label">Tipo Sanguíneo</label>
+                        <p class="info-data info-data-highlight" id="user-blood-type">...</p>
+                    </div>
+                    <!-- Já Doou? -->
+                    <div class="info-item">
+                        <label class="info-label">Já doou sangue?</label>
+                        <p class="info-data" id="user-has-donated">Carregando...</p>
+                    </div>
+                    <!-- Primeira Doação (Campo condicional) -->
+                    <div class="info-item" id="first-donation-item" style="display: none;">
+                        <label class="info-label">Primeira vez</label>
+                        <p class="info-data" id="user-first-donation">Carregando...</p>
+                    </div>
+                </div>
+            </div>
+            
+
+            
+            <button type="button" class="edit-button">Editar Perfil</button>
+
+        </section>
+    </main>
+
+    <!-- 3. Carrega o Footer -->
+    <footer id="footer"></footer>
+
+    <!-- Scripts -->
+    <script src="scripts/global.js"></script> <!-- (Deve conter a função 'loadComponent') -->
+    <script src="scripts/perfil.js"></script>
+
+    <!-- Flowbite JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+</body>
+</html>
