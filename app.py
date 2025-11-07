@@ -389,13 +389,6 @@ def login():
             return render_template('login.html', error="Email ou senha inválidos", logged_in=False)
     return render_template('login.html', logged_in=False)
 
-@app.route('/logout')
-def logout():
-    response = make_response(redirect(url_for('login')))
-    response.delete_cookie('usuario_id')
-    response.delete_cookie('login_time')
-    logging.debug("Usuário deslogado, cookies removidos")
-    return response
 
 @app.route('/cadastro')
 def cadastro():
