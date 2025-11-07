@@ -5,35 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
 
-    <!-- 1. Flowbite CSS -->
+    <!-- Flowbite CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
       rel="stylesheet"
     />
 
-    <!-- 2. CSS Global -->
+    <!-- CSS Global -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='styles/global.css') }}"
     />
 
-    <!-- 3. CSS Específico da Página de Login -->
+    <!-- CSS Específico da Página de Login -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='styles/login.css') }}"
     />
+
+    <style>
+      .error-message {
+        color: red;
+        text-align: center;
+        margin: 10px 0;
+      }
+    </style>
   </head>
   <body>
-    <!-- 1. Carrega o Header -->
+    <!-- Carrega o Header -->
     {% include 'components/header.html' %}
 
-    <!-- 2. Conteúdo Principal -->
+    <!-- Conteúdo Principal -->
     <main class="main-content">
       <section class="login-container">
         <h1 class="form-title">Login</h1>
         <p class="form-subtitle">Bem-vindo(a) de volta!</p>
 
-        <form class="login-form" action="/login-submit" method="POST">
+        <!-- Exibir mensagem de erro, se houver -->
+        {% if error %}
+          <p class="error-message">{{ error }}</p>
+        {% endif %}
+
+        <form class="login-form" action="{{ url_for('login') }}" method="POST">
           <div class="form-group">
             <label for="email" class="form-label">Email:</label>
             <input
@@ -77,15 +90,13 @@
       </section>
     </main>
 
-    <!-- 3. Carrega o Footer -->
+    <!-- Carrega o Footer -->
     {% include 'components/footer.html' %}
 
     <!-- Scripts -->
-    <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
-    <!-- (Deve conter a função 'loadComponent') -->
+    <!-- Remova global.js se loadComponent não for necessário -->
+    <!-- <script src="{{ url_for('static', filename='scripts/global.js') }}"></script> -->
     <script src="{{ url_for('static', filename='scripts/login.js') }}"></script>
-
-    <!-- Flowbite JS -->
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
   </body>
 </html>

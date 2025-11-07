@@ -1,8 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 import sqlite3
 import os
+import logging
+from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
+
+# Configurar logging para debugging
+logging.basicConfig(level=logging.DEBUG)
 
 # -----------------------------
 # Carregar variáveis de ambiente (.env)
@@ -38,30 +44,37 @@ mail = Mail(app)
 # Banco de Dados
 # -----------------------------
 def init_db():
-    if not os.path.exists('database.db'):
-        conn = sqlite3.connect('database.db')
-        c = conn.cursor()
-        c.execute('''
-            CREATE TABLE usuarios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome TEXT,
-                email TEXT,
-                telefone TEXT,
-                tipo_sanguineo TEXT,
-                data_nascimento TEXT,
-                genero TEXT,
-                cep TEXT,
-                endereco TEXT,
-                ja_doou TEXT,
-                primeira_vez TEXT,
-                interesse TEXT,
-                autoriza_msg INTEGER,
-                autoriza_dados INTEGER,
-                pontos INTEGER DEFAULT 0
-            )
-        ''')
-        conn.commit()
-        conn.close()
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT,
+            email TEXT,
+            telefone TEXT,
+            tipo_sanguineo TEXT,
+            data_nascimento TEXT,
+            genero TEXT,
+            cep TEXT,
+            endereco TEXT,
+            ja_doou TEXT,
+            primeira_vez TEXT,
+            interesse TEXT,
+            autoriza_msg INTEGER,
+            autoriza_dados INTEGER,
+            pontos INTEGER DEFAULT 0,
+            senha TEXT
+        )
+    ''')
+
+    c.execute("PRAGMA table_info(usuarios)")
+    columns = [col[1] for col in c.fetchall()]
+    if 'senha' not in columns:
+        c.execute('ALTER TABLE usuarios ADD COLUMN senha TEXT')
+
+    conn.commit()
+    conn.close()
 
 init_db()
 
@@ -83,9 +96,33 @@ def enviar_email(para, assunto, mensagem):
 def index():
     return render_template('index.html')
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    if request.method == 'POST':
+        email = request.form.get('email')
+        senha = request.form.get('password')
+        if not email or not senha:
+            logging.error("Email ou senha não fornecidos")
+            return render_template('login.html', error="Por favor, preencha todos os campos.")
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute('SELECT * FROM usuarios WHERE email = ?', (email,))
+        usuario = c.fetchone()
+        conn.close()
+        if not usuario:
+            logging.error(f"Usuário com email {email} não encontrado")
+            return render_template('login.html', error="Email ou senha inválidos")
+        if check_password_hash(usuario['senha'], senha):
+            response = make_response(redirect(url_for('perfil')))
+            response.set_cookie('usuario_id', str(usuario['id']), max_age=3*24*60*60)
+            response.set_cookie('login_time', datetime.utcnow().isoformat(), max_age=3*24*60*60)
+            logging.debug(f"Login bem-sucedido para usuário ID: {usuario['id']}")
+            return response
+        else:
+            logging.error(f"Senha inválida para email {email}")
+            return render_template('login.html', error="Email ou senha inválidos")
+    return render_template('login.html', logged_in=False)
 
 @app.route('/cadastro')
 def cadastro():
@@ -103,73 +140,82 @@ def campanhas_admin():
 def dashboard_admin():
     return render_template('dashboard_admin.html')
 
-# -----------------------------
-# Cadastro de Usuário
-# -----------------------------
 @app.route('/submit', methods=['POST'])
 def submit():
     data = request.form.to_dict()
-
+    logging.debug(f"Dados recebidos do formulário: {data}")
+    senha_hash = generate_password_hash(data.get('senha'))
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     c.execute('''
         INSERT INTO usuarios (
             nome, email, telefone, tipo_sanguineo, data_nascimento, genero,
             cep, endereco, ja_doou, primeira_vez, interesse,
-            autoriza_msg, autoriza_dados, pontos
+            autoriza_msg, autoriza_dados, pontos, senha
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
     ''', (
         data.get('nome'), data.get('email'), data.get('telefone'),
         data.get('tipo_sanguineo'), data.get('data_nascimento'),
         data.get('genero'), data.get('cep'), data.get('endereco'),
         data.get('ja_doou'), data.get('primeira_vez'), data.get('interesse'),
-        1 if data.get('autoriza_msg') == 'on' else 0,
-        1 if data.get('autoriza_dados') == 'on' else 0
+        1 if data.get('autoriza_msg') == 'sim' else 0,
+        1 if data.get('autoriza_dados') == 'sim' else 0,
+        senha_hash
     ))
     conn.commit()
     user_id = c.lastrowid
     conn.close()
+    response = make_response(redirect(url_for('perfil')))
+    response.set_cookie('usuario_id', str(user_id), max_age=3*24*60*60)
+    response.set_cookie('login_time', datetime.utcnow().isoformat(), max_age=3*24*60*60)
+    logging.debug(f"Usuário cadastrado com ID: {user_id}")
+    return response
 
-    return redirect(url_for('perfil', usuario_id=user_id))
-
-# -----------------------------
-# Perfil de Usuário
-# -----------------------------
 @app.route('/perfil/')
 @app.route('/perfil/<int:usuario_id>')
 def perfil(usuario_id=None):
+    cookie_usuario_id = request.cookies.get('usuario_id')
+    login_time = request.cookies.get('login_time')
+    if not cookie_usuario_id or not login_time:
+        logging.debug("Nenhum cookie encontrado ou login_time ausente, redirecionando para login")
+        return redirect(url_for('login'))
+    try:
+        login_time_dt = datetime.fromisoformat(login_time)
+        if datetime.utcnow() - login_time_dt > timedelta(days=4):
+            logging.debug("Cookie expirado, redirecionando para login")
+            return redirect(url_for('login'))
+        usuario_id = usuario_id or int(cookie_usuario_id)
+    except (ValueError, TypeError):
+        logging.error("Erro ao processar cookie de login_time ou usuario_id inválido")
+        return redirect(url_for('login'))
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-
-    if usuario_id:
-        c.execute('SELECT * FROM usuarios WHERE id = ?', (usuario_id,))
-    else:
-        c.execute('SELECT * FROM usuarios ORDER BY id DESC LIMIT 1')
-
+    c.execute('SELECT * FROM usuarios WHERE id = ?', (usuario_id,))
     usuario_data = c.fetchone()
     conn.close()
-
     if usuario_data is None:
-        return redirect(url_for('cadastro'))
-
+        logging.error(f"Nenhum usuário encontrado para ID: {usuario_id}")
+        return render_template('perfil.html', error="Usuário não encontrado. Por favor, faça login ou cadastre-se novamente.")
     usuario = dict(usuario_data)
     usuario["nivel"] = "Doador Iniciante"
     usuario["progressoPercentual"] = usuario["pontos"] * 10
     usuario["selos"] = []
-
     if usuario["ja_doou"] == 'sim':
         usuario["selos"].append({
             "nome": "Primeira Doação!",
             "caminhoImagem": "assets/selo-primeira-doacao.png"
         })
+    logging.debug(f"Dados do usuário: {usuario}")
+    response = make_response(render_template('perfil.html', usuario=usuario, logged_in=True))
+    try:
+        if (datetime.utcnow() - login_time_dt) < timedelta(days=3):
+            response.set_cookie('login_time', datetime.utcnow().isoformat(), max_age=3*24*60*60)
+    except UnboundLocalError:
+        logging.error("login_time_dt não definido, não renovando cookie")
+    return response
 
-    return render_template('perfil.html', usuario=usuario)
-
-# -----------------------------
-# API de Campanhas
-# -----------------------------
 @app.route('/api/campanhas')
 def api_campanhas():
     campanhas = [
@@ -178,10 +224,8 @@ def api_campanhas():
         {"id": 3, "nome": "Ajude o Sr. João", "tipo_sanguineo": "B+", "participantes": 5, "vagas": 10},
         {"id": 4, "nome": "Estoque Crítico A-", "tipo_sanguineo": "A-", "participantes": 8, "vagas": 15},
     ]
-
     total_participantes = sum(c['participantes'] for c in campanhas)
     total_vagas = sum(c['vagas'] for c in campanhas)
-
     return jsonify({
         "campanhas": campanhas,
         "estatisticas": {
@@ -191,9 +235,6 @@ def api_campanhas():
         }
     })
 
-# -----------------------------
-# Recuperação de Senha (Form + E-mail)
-# -----------------------------
 @app.route('/recuperar', methods=['GET'])
 def recuperar():
     return render_template('recuperar_senha.html')
@@ -203,17 +244,12 @@ def email_submit():
     email = request.form['email']
     corpo = f"""
     Olá,
-
     Recebemos uma solicitação para redefinir sua senha.
     Clique no link abaixo para continuar:
-
     http://seusite.com/redefinir_senha?email={email}
-
     Se você não fez esta solicitação, ignore este e-mail.
     """
-
     resultado = enviar_email(email, 'Recuperação de Senha', corpo)
-
     if resultado['status'] == 'sucesso':
         return render_template('recuperar_senha.html', sucesso=True)
     else:
@@ -226,17 +262,11 @@ def enviar_email_api():
     status = 200 if resultado['status'] == 'sucesso' else 500
     return jsonify(resultado), status
 
-# -----------------------------
-# Página de Conscientização
-# -----------------------------
 @app.route('/conscientizacao')
 def conscientizacao():
     nome = request.args.get('nome', 'Doador')
     return render_template('conscientizacao.html', nome=nome, pontos=0)
 
-# -----------------------------
-# Execução da Aplicação
-# -----------------------------
 if __name__ == '__main__':
     app.run(debug=True)
 # -----------------------------
@@ -251,3 +281,4 @@ def enviar_email_page():  # <--- Tem que ser este nome!
     except Exception as e:
         print(f"Erro ao renderizar enviar_email.html: {e}")
         return "Erro interno - template não encontrado", 500
+    app.run(debug=True)
