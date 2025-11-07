@@ -1,16 +1,17 @@
-// Espera o DOM carregar antes de rodar
-document.addEventListener("DOMContentLoaded", () => {
-    
-    // Verifica se a função 'loadComponent' foi carregada (do global.js)
-    if (typeof loadComponent === 'function') {
-        
-        // Carrega os componentes globais
-        loadComponent("header", "components/header.html");
-        loadComponent("footer", "components/footer.html");
-
-    } else {
-        console.error("A função 'loadComponent' não foi encontrada. Verifique se 'global.js' está sendo carregado corretamente.");
+// static/scripts/login.js
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('.login-form');
+    if (form) {
+        form.addEventListener('submit', (event) => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if (!email || !password) {
+                event.preventDefault();
+                const errorDiv = document.createElement('p');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = 'Por favor, preencha todos os campos.';
+                form.prepend(errorDiv);
+            }
+        });
     }
-
-    // Nenhuma lógica extra de formulário é necessária para a página de login por enquanto.
 });

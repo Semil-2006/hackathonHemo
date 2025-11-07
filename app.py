@@ -5,6 +5,7 @@ import sqlite3
 import os
 import logging
 from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Configurar logging para debugging
 logging.basicConfig(level=logging.DEBUG)
@@ -99,26 +100,29 @@ def index():
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
-        senha = request.form.get('senha')
-
+        senha = request.form.get('password')
+        if not email or not senha:
+            logging.error("Email ou senha não fornecidos")
+            return render_template('login.html', error="Por favor, preencha todos os campos.")
         conn = sqlite3.connect('database.db')
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
         c.execute('SELECT * FROM usuarios WHERE email = ?', (email,))
         usuario = c.fetchone()
         conn.close()
-
-        if usuario and usuario['senha'] == senha:  # Comparação direta (sem hash por enquanto)
+        if not usuario:
+            logging.error(f"Usuário com email {email} não encontrado")
+            return render_template('login.html', error="Email ou senha inválidos")
+        if check_password_hash(usuario['senha'], senha):
             response = make_response(redirect(url_for('perfil')))
-            response.set_cookie('usuario_id', str(usuario['id']), max_age=3*24*60*60)  # 3 dias
+            response.set_cookie('usuario_id', str(usuario['id']), max_age=3*24*60*60)
             response.set_cookie('login_time', datetime.utcnow().isoformat(), max_age=3*24*60*60)
             logging.debug(f"Login bem-sucedido para usuário ID: {usuario['id']}")
             return response
         else:
-            logging.error("Falha no login: email ou senha inválidos")
+            logging.error(f"Senha inválida para email {email}")
             return render_template('login.html', error="Email ou senha inválidos")
-
-    return render_template('login.html')
+    return render_template('login.html', logged_in=False)
 
 @app.route('/cadastro')
 def cadastro():
@@ -132,14 +136,11 @@ def campanhas():
 def dashboard_admin():
     return render_template('dashboard_admin.html')
 
-# -----------------------------
-# Cadastro de Usuário
-# -----------------------------
 @app.route('/submit', methods=['POST'])
 def submit():
     data = request.form.to_dict()
     logging.debug(f"Dados recebidos do formulário: {data}")
-
+    senha_hash = generate_password_hash(data.get('senha'))
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     c.execute('''
@@ -156,81 +157,61 @@ def submit():
         data.get('ja_doou'), data.get('primeira_vez'), data.get('interesse'),
         1 if data.get('autoriza_msg') == 'sim' else 0,
         1 if data.get('autoriza_dados') == 'sim' else 0,
-        data.get('senha')
+        senha_hash
     ))
     conn.commit()
     user_id = c.lastrowid
     conn.close()
-
     response = make_response(redirect(url_for('perfil')))
-    response.set_cookie('usuario_id', str(user_id), max_age=3*24*60*60)  # 3 dias
+    response.set_cookie('usuario_id', str(user_id), max_age=3*24*60*60)
     response.set_cookie('login_time', datetime.utcnow().isoformat(), max_age=3*24*60*60)
     logging.debug(f"Usuário cadastrado com ID: {user_id}")
     return response
 
-# -----------------------------
-# Perfil de Usuário
-# -----------------------------
 @app.route('/perfil/')
 @app.route('/perfil/<int:usuario_id>')
 def perfil(usuario_id=None):
-    # Verificar cookie
     cookie_usuario_id = request.cookies.get('usuario_id')
     login_time = request.cookies.get('login_time')
-
-    # Se não houver cookie ou usuario_id, redirecionar para login
     if not cookie_usuario_id or not login_time:
         logging.debug("Nenhum cookie encontrado ou login_time ausente, redirecionando para login")
         return redirect(url_for('login'))
-
     try:
         login_time_dt = datetime.fromisoformat(login_time)
         if datetime.utcnow() - login_time_dt > timedelta(days=4):
             logging.debug("Cookie expirado, redirecionando para login")
             return redirect(url_for('login'))
-        # Usar usuario_id do cookie, se disponível, ou o fornecido na URL
         usuario_id = usuario_id or int(cookie_usuario_id)
     except (ValueError, TypeError):
         logging.error("Erro ao processar cookie de login_time ou usuario_id inválido")
         return redirect(url_for('login'))
-
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-
     c.execute('SELECT * FROM usuarios WHERE id = ?', (usuario_id,))
     usuario_data = c.fetchone()
     conn.close()
-
     if usuario_data is None:
         logging.error(f"Nenhum usuário encontrado para ID: {usuario_id}")
         return render_template('perfil.html', error="Usuário não encontrado. Por favor, faça login ou cadastre-se novamente.")
-
     usuario = dict(usuario_data)
     usuario["nivel"] = "Doador Iniciante"
     usuario["progressoPercentual"] = usuario["pontos"] * 10
     usuario["selos"] = []
-
     if usuario["ja_doou"] == 'sim':
         usuario["selos"].append({
             "nome": "Primeira Doação!",
             "caminhoImagem": "assets/selo-primeira-doacao.png"
         })
-
     logging.debug(f"Dados do usuário: {usuario}")
     response = make_response(render_template('perfil.html', usuario=usuario, logged_in=True))
-    # Renovar cookie se dentro de 3 dias
     try:
         if (datetime.utcnow() - login_time_dt) < timedelta(days=3):
             response.set_cookie('login_time', datetime.utcnow().isoformat(), max_age=3*24*60*60)
     except UnboundLocalError:
-        # Caso login_time_dt não tenha sido definido devido a erro anterior
         logging.error("login_time_dt não definido, não renovando cookie")
     return response
 
-# -----------------------------
-# API de Campanhas
-# -----------------------------
 @app.route('/api/campanhas')
 def api_campanhas():
     campanhas = [
@@ -239,10 +220,8 @@ def api_campanhas():
         {"id": 3, "nome": "Ajude o Sr. João", "tipo_sanguineo": "B+", "participantes": 5, "vagas": 10},
         {"id": 4, "nome": "Estoque Crítico A-", "tipo_sanguineo": "A-", "participantes": 8, "vagas": 15},
     ]
-
     total_participantes = sum(c['participantes'] for c in campanhas)
     total_vagas = sum(c['vagas'] for c in campanhas)
-
     return jsonify({
         "campanhas": campanhas,
         "estatisticas": {
@@ -252,9 +231,6 @@ def api_campanhas():
         }
     })
 
-# -----------------------------
-# Recuperação de Senha (Form + E-mail)
-# -----------------------------
 @app.route('/recuperar', methods=['GET'])
 def recuperar():
     return render_template('recuperar_senha.html')
@@ -264,17 +240,12 @@ def email_submit():
     email = request.form['email']
     corpo = f"""
     Olá,
-
     Recebemos uma solicitação para redefinir sua senha.
     Clique no link abaixo para continuar:
-
     http://seusite.com/redefinir_senha?email={email}
-
     Se você não fez esta solicitação, ignore este e-mail.
     """
-
     resultado = enviar_email(email, 'Recuperação de Senha', corpo)
-
     if resultado['status'] == 'sucesso':
         return render_template('recuperar_senha.html', sucesso=True)
     else:
@@ -287,16 +258,10 @@ def enviar_email_api():
     status = 200 if resultado['status'] == 'sucesso' else 500
     return jsonify(resultado), status
 
-# -----------------------------
-# Página de Conscientização
-# -----------------------------
 @app.route('/conscientizacao')
 def conscientizacao():
     nome = request.args.get('nome', 'Doador')
     return render_template('conscientizacao.html', nome=nome, pontos=0)
 
-# -----------------------------
-# Execução da Aplicação
-# -----------------------------
 if __name__ == '__main__':
     app.run(debug=True)
