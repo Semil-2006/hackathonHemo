@@ -177,7 +177,6 @@
     </main>
 
     <footer class="footer">
-        <!-- Opções removidas; apenas a seta para voltar ao topo -->
     </footer>
 
     <button id="back-to-top" class="back-to-top">&uarr;</button>
@@ -186,7 +185,6 @@
     <script src="{{ url_for('static', filename='scripts/cadastro.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
     <script>
-        // Função para alternar visibilidade da senha
         function togglePassword() {
             const passwordInput = document.getElementById('senha');
             const eyeIcon = document.getElementById('eye-icon');
@@ -198,15 +196,12 @@
                 : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>`;
         }
 
-        // Função para voltar ao topo
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Adiciona o evento de clique ao botão
         document.getElementById('back-to-top').addEventListener('click', scrollToTop);
 
-        // Mostra o botão quando o usuário rola para baixo
         window.onscroll = function() {
             if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
                 document.getElementById('back-to-top').style.display = 'block';
@@ -215,19 +210,15 @@
             }
         };
 
-        // Desabilitar botão de submit até o checkbox required ser marcado
         const submitBtn = document.querySelector('.submit-button');
         const authDados = document.getElementById('autoriza_dados');
 
-        // Inicialmente desabilitado
         submitBtn.disabled = !authDados.checked;
 
-        // Evento de mudança para o checkbox
         authDados.addEventListener('change', () => {
             submitBtn.disabled = !authDados.checked;
         });
 
-        // Controle dos campos condicionais
         const jaDoouSelect = document.getElementById('ja_doou');
         const perguntaSim = document.getElementById('pergunta_sim');
         const perguntaNao = document.getElementById('pergunta_nao');
