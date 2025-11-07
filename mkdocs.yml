@@ -1,8 +1,8 @@
-site_name: Documentação LFBagYourDreams
+site_name: Documentação Projeto Hemocentro - Equipe 1
 
 nav:
   - Página Inicial: index.md
-  - Requisitos: requisitos.md
+  - Requisitos: requisitos/requisitos.md
   
 theme:
   name: material
@@ -37,6 +37,3 @@ theme:
 
 markdown_extensions:
   - attr_list
-
-extra_css:
-  - css/custom.css

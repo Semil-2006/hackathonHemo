@@ -2,7 +2,7 @@
 
 ## 1. Equipe:
 
-* Arthur
+* Arthur Martins
 * Caio Duarte
 * Vinícius Araújo
 * Alan Semil
