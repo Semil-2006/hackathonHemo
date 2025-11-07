@@ -166,7 +166,7 @@
 .badges-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.25rem; /* slightly larger gap for readability */
 }
 
 /* Estilo do container do selo (círculo) */
@@ -174,14 +174,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 4rem; /* w-16 */
-    height: 4rem; /* h-16 */
+    width: 5rem; /* larger by default for readability (80px) */
+    height: 5rem;
     background-color: #f3f4f6; /* bg-gray-100 */
     border-radius: 50%;
     border: 2px solid #e5e7eb;
     cursor: help; /* Mostra o 'title' no hover */
     padding: 0.5rem; /* Espaçamento interno para a imagem */
     box-sizing: border-box; /* Garante que o padding não aumente o tamanho */
+}
+
+/* Bigger badges on larger screens */
+@media (min-width: 768px) {
+    .badge {
+        width: 6rem; /* 96px */
+        height: 6rem;
+        padding: 0.75rem;
+    }
 }
 
 /* Estilo da imagem dentro do selo */
@@ -200,7 +209,7 @@
 
 
 /* Botão de Editar */
-.edit-button {
+.button{
     width: 100%;
     padding: 0.75rem 1.25rem;
     margin-top: 1rem; /* Espaço após o último card */

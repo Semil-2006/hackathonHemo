@@ -6,8 +6,9 @@
 .main-content {
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 2rem 1rem; /* Espaçamento para telas menores */
+    /* ALTERAÇÃO: Alinha o conteúdo ao topo da área disponível */
+    align-items: flex-start;
+    
     min-height: calc(100vh - 160px); /* Altura da tela menos header/footer (ajuste o valor 160px) */
     padding-top: 100px; /* Adiciona espaço para o header fixo */
 
@@ -21,11 +22,10 @@
 
 .registration-container {
     /* Define a largura máxima do formulário. 
-      'max-w-sm' do Tailwind é 24rem (384px). 
-      Vamos usar um pouco mais para conforto.
+       A largura é controlada por classes responsivas no HTML (ex: max-w-3xl, max-w-5xl).
     */
     width: 100%;
-    max-width: 420px;
+    /* max-width: 420px; <--- REMOVIDO para permitir a expansão em telas grandes */
     padding: 2rem;
     background-color: #ffffff;
     border-radius: 0.75rem; /* rounded-lg */
@@ -174,6 +174,7 @@
   Substitui 'text-white bg-blue-700 hover:bg-blue-800 ...'
 */
 .registration-container .submit-button {
+    margin-top: 32px;
     width: 100%;
     padding: 0.75rem 1.25rem; /* px-5 py-2.5 */
     font-size: 0.875rem; /* text-sm */

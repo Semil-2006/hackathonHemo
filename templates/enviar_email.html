@@ -5,29 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Campanha - Admin</title>
 
+    <!-- Flowbite CSS -->
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
     
+    <!-- Quill.js Editor CSS (Necessário para o editor de texto) -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 
+    <!-- Seus Estilos Globais -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
     
+    <!-- Estilos do Painel Admin (Reaproveitados) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard_admin.css') }}">
 
+    <!-- Estilos de Cadastro (reaproveitar componentes de formulário) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/cadastro.css') }}">
+    <!-- Estilos desta página -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/enviar_email.css') }}">
 </head>
 <body>
-    {% include 'components/header.html' %}
+    <!-- Header include -->
+    {% include 'components/sidebar.html' %}
 
-    <main class="main-content-campaign">
-        
-        <h1>
-            <a href="{{ url_for('dashboard_admin_page') }}" style="text-decoration: none;">&larr;</a>
-            Criar Nova Campanha
-        </h1>
-        <p>Envie mensagens personalizadas para os doadores.</p>
+    <!-- Container principal da página (classe 'main-content-campaign' do CSS) -->
+    <main style="padding: 32px;">
+    <div class="registration-container" >
+    <form id="campaign-form">
 
-        <form id="campaign-form">
-
+            <!-- (RF03) Seletor de Canal de Disparo (E-mail vs WhatsApp) -->
             <fieldset>
                 <legend>1. Canal de Disparo</legend>
                 <p class="fieldset-subtitle">Selecione por onde esta campanha será enviada.</p>
@@ -43,14 +47,16 @@
                 </div>
             </fieldset>
 
+            <!-- (RF03 - Critério 1) Segmentação de Doadores -->
             <fieldset>
                 <legend>2. Segmentação de Doadores</legend>
                 <p class="fieldset-subtitle">Selecione quem irá receber esta mensagem.</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Tipo Sanguíneo (com consentimento) -->
                     <div>
                         <label for="seg-tipo-sanguineo" class="block mb-2 text-sm font-medium text-gray-900">Tipo Sanguíneo</label>
-                        <select id="seg-tipo-sanguineo" multiple class="bg-gray-50 border ...">
+                        <select id="seg-tipo-sanguineo" multiple class="form-input">
                             <option value="A+">A+</option>
                             <option value="A-">A-</option>
                             <option value="B+">B+</option>
@@ -62,25 +68,48 @@
                         </select>
                         <small>Nota: Apenas doadores com consentimento explícito.</small>
                     </div>
+                    <!-- Cidade -->
                     <div>
                         <label for="seg-cidade" class="block mb-2 text-sm font-medium text-gray-900">Cidade</label>
-                        <select id="seg-cidade" multiple class="bg-gray-50 border ...">
+                        <select id="seg-cidade" multiple class="form-input">
+                            <!-- Popular via JS ou backend -->
                             <option value="Brasilia">Brasília</option>
                             <option value="Goiania">Goiânia</option>
                         </select>
                     </div>
+                    <!-- Classificação -->
                     <div>
                         <label for="seg-classificacao" class="block mb-2 text-sm font-medium text-gray-900">Classificação</label>
-                        <select id="seg-classificacao" class="bg-gray-50 border ...">
+                        <select id="seg-classificacao" class="form-input">
                             <option value="todos">Todos</option>
                             <option value="primeira_vez">Primeira Vez</option>
                             <option value="esporadico">Esporádico</option>
                             <option value="regular">Regular</option>
                         </select>
                     </div>
+                    <!-- Gênero -->
+                    <div>
+                        <label for="seg-genero" class="block mb-2 text-sm font-medium text-gray-900">Gênero</label>
+                        <select id="seg-genero" class="form-input">
+                            <option value="">Qualquer</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Feminino">Feminino</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                    <!-- Faixa etária -->
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-gray-900">Faixa etária (anos)</label>
+                        <div class="flex space-x-2">
+                            <input id="seg-min-age" type="number" min="0" placeholder="Mín" class="form-input" style="width:100px;">
+                            <input id="seg-max-age" type="number" min="0" placeholder="Máx" class="form-input" style="width:100px;">
+                        </div>
+                        <small>Deixe em branco para não filtrar por idade.</small>
+                    </div>
+                    <!-- Interesse -->
                     <div>
                         <label for="seg-interesse" class="block mb-2 text-sm font-medium text-gray-900">Interesse</label>
-                        <select id="seg-interesse" class="bg-gray-50 border ...">
+                        <select id="seg-interesse" class="form-input">
                             <option value="todos">Todos</option>
                             <option value="sim">Com interesse em doar</option>
                             <option value="nao">Sem interesse</option>
@@ -89,13 +118,18 @@
                 </div>
             </fieldset>
 
+            <!-- (RF03 - Critério 3) Conteúdo da Mensagem -->
+
+            <!-- Formulário de E-MAIL (com editor rico) -->
             <div id="form-for-email">
                 <fieldset>
                     <legend>3. Conteúdo do E-mail</legend>
+                    <!-- Personalização do Remetente -->
                     <div>
                         <label for="msg-remetente" class="block mb-2 text-sm font-medium text-gray-900">Nome do Remetente</label>
-                        <input type="text" id="msg-remetente" class="bg-gray-50 border ..." value="Equipe Hemocentro">
+                        <input type="text" id="msg-remetente" class="form-input" value="Equipe Hemocentro">
                     </div>
+                    <!-- Editor de Texto (Negrito, Itálico, etc.) -->
                     <div style="margin-top: 16px;">
                         <label class="block mb-2 text-sm font-medium text-gray-900">Mensagem</label>
                         <div id="editor-container">
@@ -106,7 +140,8 @@
                 </fieldset>
             </div>
 
-            <div id="form-for-whatsapp" style="display: none;">
+            <!-- Formulário do CANAL WHATSAPP (só texto simples) -->
+                <div id="form-for-whatsapp" style="display: none;">
                 <fieldset>
                     <legend>3. Mensagem para o Canal WhatsApp</legend>
                     <p class="fieldset-subtitle">
@@ -114,35 +149,41 @@
                         (ex: "Alerta A+"). A mensagem é texto simples.
                     </p>
                     <label for="whatsapp-message" class="block mb-2 text-sm font-medium">Mensagem Simples</label>
-                    <textarea id="whatsapp-message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300"></textarea>
+                    <textarea id="whatsapp-message" rows="4" class="form-input"></textarea>
                 </fieldset>
             </div>
 
+            <!-- (RF03 - Critério 3) Agendamento e Envio -->
             <fieldset>
                 <legend>4. Envio e Agendamento</legend>
                 <div>
                     <label for="camp-agendamento" class="block mb-2 text-sm font-medium text-gray-900">Agendar envio para:</label>
-                    <input type="datetime-local" id="camp-agendamento" class="bg-gray-50 border ...">
+                    <input type="datetime-local" id="camp-agendamento" class="form-input">
                     <small>Deixe em branco para enviar imediatamente.</small>
                 </div>
             </fieldset>
 
+            <!-- Botões de Ação -->
             <div class="campaign-actions">
-                <button type="button" id="btn-enviar-agora" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 ... px-5 py-2.5">
+                <button type="button" id="btn-enviar-agora" class="submit-button">
                     Enviar Agora
                 </button>
-                <button type="button" id="btn-agendar" class="text-gray-900 bg-white border border-gray-300 focus:outline-none ... px-5 py-2.5">
+                <button type="button" id="btn-agendar" class="form-input" style="width:auto;padding:0.5rem 1rem;">
                     Salvar Agendamento
                 </button>
             </div>
         </form>
+        </div>
     </main>
 
+    <!-- Footer include -->
     {% include 'components/footer.html' %}
 
+    <!-- Scripts de Bibliotecas (Flowbite, Quill.js) -->
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     
+    <!-- Seu Script JS separado -->
     <script src="{{ url_for('static', filename='scripts/enviar_email.js') }}" defer></script>
 </body>
 </html>

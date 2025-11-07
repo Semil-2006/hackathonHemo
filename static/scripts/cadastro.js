@@ -73,3 +73,61 @@ document.addEventListener("DOMContentLoaded", () => {
         togglePerguntas();
     }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+/**
+ * scripts/formatador_numerico.js
+ *
+ * Função para formatar um campo de input para o padrão numérico brasileiro (telefone).
+ *
+ * Exemplo de uso no HTML:
+ * <input type="text" id="telefone" oninput="formatarTelefone(this)" maxlength="15" placeholder="(99) 99999-9999" />
+ */
+
+/**
+ * Aplica a máscara de telefone (xx) xxxxx-xxxx em tempo real.
+ * @param {HTMLInputElement} input O elemento input a ser formatado.
+ */
+function formatarTelefone(input) {
+    // 1. Remove tudo que não for dígito (garante que só números serão formatados)
+    let value = input.value.replace(/\D/g, '');
+
+    // 2. Limita o valor a 11 dígitos (incluindo o 9º dígito)
+    if (value.length > 11) {
+        value = value.substring(0, 11);
+    }
+
+    // 3. Aplica a máscara
+    if (value.length > 0) {
+        // (xx) xxxxx-xxxx ou (xx) xxxx-xxxx
+        value = value.replace(/^(\d{2})(\d)/g, '($1) $2'); // Coloca parênteses e espaço (xx) x
+        
+        if (value.length > 9) { // Se tem mais de 5 dígitos (contando a máscara), insere o hífen
+            if (value.length <= 14) {
+                // Formato (xx) xxxx-xxxx (8º dígito)
+                value = value.replace(/(\d{4})(\d)/, '$1-$2');
+            } else {
+                // Formato (xx) xxxxx-xxxx (9º dígito)
+                value = value.replace(/(\d{5})(\d)/, '$1-$2');
+            }
+        }
+    }
+
+    // 4. Atualiza o valor do input
+    input.value = value;
+}
+
+/**
+ * Função utilitária para garantir que apenas dígitos são inseridos.
+ * (Bloqueia a tecla pressionada se não for um número)
+ * * @param {Event} event O evento keypress do input.
+ */
+function somenteNumeros(event) {
+    const charCode = (event.which) ? event.which : event.keyCode;
+    // 48 a 57 são os códigos para 0-9
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        // Impede a inserção de caracteres não numéricos
+        event.preventDefault();
+    }
+}
+}  );
