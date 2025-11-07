@@ -1,8 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 import sqlite3
 import os
+import logging
+from datetime import datetime, timedelta
+
+# Configurar logging para debugging
+logging.basicConfig(level=logging.DEBUG)
 
 # -----------------------------
 # Carregar variáveis de ambiente (.env)
@@ -41,7 +46,6 @@ def init_db():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     
-    # Criar tabela usuarios se não existir
     c.execute('''
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,7 +67,6 @@ def init_db():
         )
     ''')
 
-    # Verificar se a coluna senha existe, senão adicionar
     c.execute("PRAGMA table_info(usuarios)")
     columns = [col[1] for col in c.fetchall()]
     if 'senha' not in columns:
@@ -92,8 +95,29 @@ def enviar_email(para, assunto, mensagem):
 def index():
     return render_template('index.html')
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        senha = request.form.get('senha')
+
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute('SELECT * FROM usuarios WHERE email = ?', (email,))
+        usuario = c.fetchone()
+        conn.close()
+
+        if usuario and usuario['senha'] == senha:  # Comparação direta (sem hash por enquanto)
+            response = make_response(redirect(url_for('perfil')))
+            response.set_cookie('usuario_id', str(usuario['id']), max_age=3*24*60*60)  # 3 dias
+            response.set_cookie('login_time', datetime.utcnow().isoformat(), max_age=3*24*60*60)
+            logging.debug(f"Login bem-sucedido para usuário ID: {usuario['id']}")
+            return response
+        else:
+            logging.error("Falha no login: email ou senha inválidos")
+            return render_template('login.html', error="Email ou senha inválidos")
+
     return render_template('login.html')
 
 @app.route('/cadastro')
@@ -114,6 +138,7 @@ def dashboard_admin():
 @app.route('/submit', methods=['POST'])
 def submit():
     data = request.form.to_dict()
+    logging.debug(f"Dados recebidos do formulário: {data}")
 
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
@@ -137,7 +162,11 @@ def submit():
     user_id = c.lastrowid
     conn.close()
 
-    return redirect(url_for('perfil', usuario_id=user_id))
+    response = make_response(redirect(url_for('perfil')))
+    response.set_cookie('usuario_id', str(user_id), max_age=3*24*60*60)  # 3 dias
+    response.set_cookie('login_time', datetime.utcnow().isoformat(), max_age=3*24*60*60)
+    logging.debug(f"Usuário cadastrado com ID: {user_id}")
+    return response
 
 # -----------------------------
 # Perfil de Usuário
@@ -145,20 +174,37 @@ def submit():
 @app.route('/perfil/')
 @app.route('/perfil/<int:usuario_id>')
 def perfil(usuario_id=None):
+    # Verificar cookie
+    cookie_usuario_id = request.cookies.get('usuario_id')
+    login_time = request.cookies.get('login_time')
+
+    # Se não houver cookie ou usuario_id, redirecionar para login
+    if not cookie_usuario_id or not login_time:
+        logging.debug("Nenhum cookie encontrado ou login_time ausente, redirecionando para login")
+        return redirect(url_for('login'))
+
+    try:
+        login_time_dt = datetime.fromisoformat(login_time)
+        if datetime.utcnow() - login_time_dt > timedelta(days=4):
+            logging.debug("Cookie expirado, redirecionando para login")
+            return redirect(url_for('login'))
+        # Usar usuario_id do cookie, se disponível, ou o fornecido na URL
+        usuario_id = usuario_id or int(cookie_usuario_id)
+    except (ValueError, TypeError):
+        logging.error("Erro ao processar cookie de login_time ou usuario_id inválido")
+        return redirect(url_for('login'))
+
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
 
-    if usuario_id:
-        c.execute('SELECT * FROM usuarios WHERE id = ?', (usuario_id,))
-    else:
-        c.execute('SELECT * FROM usuarios ORDER BY id DESC LIMIT 1')
-
+    c.execute('SELECT * FROM usuarios WHERE id = ?', (usuario_id,))
     usuario_data = c.fetchone()
     conn.close()
 
     if usuario_data is None:
-        return redirect(url_for('cadastro'))
+        logging.error(f"Nenhum usuário encontrado para ID: {usuario_id}")
+        return render_template('perfil.html', error="Usuário não encontrado. Por favor, faça login ou cadastre-se novamente.")
 
     usuario = dict(usuario_data)
     usuario["nivel"] = "Doador Iniciante"
@@ -171,7 +217,16 @@ def perfil(usuario_id=None):
             "caminhoImagem": "assets/selo-primeira-doacao.png"
         })
 
-    return render_template('perfil.html', usuario=usuario)
+    logging.debug(f"Dados do usuário: {usuario}")
+    response = make_response(render_template('perfil.html', usuario=usuario, logged_in=True))
+    # Renovar cookie se dentro de 3 dias
+    try:
+        if (datetime.utcnow() - login_time_dt) < timedelta(days=3):
+            response.set_cookie('login_time', datetime.utcnow().isoformat(), max_age=3*24*60*60)
+    except UnboundLocalError:
+        # Caso login_time_dt não tenha sido definido devido a erro anterior
+        logging.error("login_time_dt não definido, não renovando cookie")
+    return response
 
 # -----------------------------
 # API de Campanhas

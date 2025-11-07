@@ -5,167 +5,139 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Perfil</title>
     
-    <!-- 1. Flowbite CSS -->
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
-
-    <!-- 
-      CAMINHOS CORRIGIDOS: 
-      Atualizados para usar 'url_for' e a pasta 'static'.
-    -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/perfil.css') }}">
+
+    <style>
+        .error-message {
+            color: red;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
-
-        <!-- Header include -->
-        {% include 'components/header.html' %}
+    <!-- Header include -->
+    {% include 'components/header.html' %}
     
-    <!-- 2. Conteúdo Principal -->
     <main class="main-content">
         <section class="profile-container" id="profile-container">
             
             <h1 class="profile-title">Meu Perfil</h1>
             <p class="profile-subtitle">Gerencie suas informações pessoais e de doador.</p>
 
-
-            <!-- Card de Gamificação -->
-            <div class="profile-card">
-                <h2 class="card-title">Minha Jornada de Doador</h2>
-                
-                <!-- Nível e Progresso -->
-                <div class="gamification-level">
-                    <div class="level-info">
-                        <span class="level-title">Nível Atual:</span>
-                        <span class="level-name" id="user-level">
-                            <!-- Ícone de SVG para o nível -->
-                            <svg class="level-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <!-- 
-                              MUDANÇA IMPORTANTE: 
-                              O 'fetch' do 'perfil.js' foi removido.
-                              Agora, o Flask/Jinja2 insere os dados do usuário
-                              diretamente do 'app.py' (render_template).
-                            -->
-                            {{ usuario.nivel | default('Doador Iniciante') }}
-                        </span>
+            {% if error %}
+                <p class="error-message">{{ error }}</p>
+                <a href="{{ url_for('cadastro') }}" class="edit-button">Cadastrar Agora</a>
+            {% else %}
+                <div class="profile-card">
+                    <h2 class="card-title">Minha Jornada de Doador</h2>
+                    
+                    <div class="gamification-level">
+                        <div class="level-info">
+                            <span class="level-title">Nível Atual:</span>
+                            <span class="level-name" id="user-level">
+                                <svg class="level-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                {{ usuario.nivel | default('Doador Iniciante') }}
+                            </span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="user-progress" style="width: {{ usuario.progressoPercentual | default(0) }}%;"></div>
+                        </div>
+                        <span class="progress-label">Progresso para Doador Comprometido</span>
                     </div>
-                    <!-- Barra de Progresso -->
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" id="user-progress" style="width: {{ usuario.progressoPercentual | default(0) }}%;"></div>
-                    </div>
-                    <span class="progress-label">Progresso para Doador Comprometido</span>
-                </div>
-                
-                <!-- Conquistas (Selos) -->
-                <div class="badges-section">
-                    <h3 class="badges-title">Conquistas</h3>
-                    <div class="badges-container" id="user-badges">
-                        <!-- 
-                          Os dados agora vêm do 'app.py' (variável 'usuario.selos')
-                        -->
-                        {% if usuario.selos %}
-                            {% for selo in usuario.selos %}
-                                <div class="badge" title="{{ selo.nome }}">
-                                    <!-- CAMINHO DA IMAGEM CORRIGIDO: -->
-                                    <img src="{{ url_for('static', filename=selo.caminhoImagem) }}" alt="{{ selo.nome }}" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <p class="info-data">Nenhuma conquista ainda.</p>
-                        {% endif %}
-                        
-                        <!-- Exemplo de selo bloqueado (pode vir da lógica do app.py) -->
-                        <div class="badge badge-locked" title="Herói (10 doações)">
-                            <img src="{{ url_for('static', filename='assets/emblemas/3.png') }}" alt="Selo Herói (Bloqueado)" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
+                    
+                    <div class="badges-section">
+                        <h3 class="badges-title">Conquistas</h3>
+                        <div class="badges-container" id="user-badges">
+                            {% if usuario.selos %}
+                                {% for selo in usuario.selos %}
+                                    <div class="badge" title="{{ selo.nome }}">
+                                        <img src="{{ url_for('static', filename=selo.caminhoImagem) }}" alt="{{ selo.nome }}" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="info-data">Nenhuma conquista ainda.</p>
+                            {% endif %}
+                            <div class="badge badge-locked" title="Herói (10 doações)">
+                                <img src="{{ url_for('static', filename='assets/emblemas/3.png') }}" alt="Selo Herói (Bloqueado)" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Card de Informações Pessoais -->
-            <div class="profile-card">
-                <h2 class="card-title">Informações Pessoais</h2>
-                <div class="info-grid">
-                    <!-- Nome Completo -->
-                    <div class="info-item">
-                        <label class="info-label">Nome Completo</label>
-                        <!-- DADOS VINDOS DO FLASK: -->
-                        <p class="info-data" id="user-name">{{ usuario.nome }}</p>
-                    </div>
-                    <!-- Email -->
-                    <div class="info-item">
-                        <label class="info-label">Email</label>
-                        <p class="info-data" id="user-email">{{ usuario.email }}</p>
-                    </div>
-                    <!-- Telefone -->
-                    <div class="info-item">
-                        <label class="info-label">Telefone</label>
-                        <p class="info-data" id="user-phone">{{ usuario.telefone }}</p>
-                    </div>
-                    <!-- Data de Nascimento -->
-                    <div class="info-item">
-                        <label class="info-label">Data de Nascimento</label>
-                        <p class="info-data" id="user-dob">{{ usuario.data_nascimento }}</p>
-                    </div>
-                    <!-- Gênero -->
-                    <div class="info-item">
-                        <label class="info-label">Gênero</label>
-                        <p class="info-data" id="user-gender">{{ usuario.genero }}</p>
+                <div class="profile-card">
+                    <h2 class="card-title">Informações Pessoais</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label class="info-label">Nome Completo</label>
+                            <p class="info-data" id="user-name">{{ usuario.nome | default('Não informado') }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Email</label>
+                            <p class="info-data" id="user-email">{{ usuario.email | default('Não informado') }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Telefone</label>
+                            <p class="info-data" id="user-phone">{{ usuario.telefone | default('Não informado') }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Data de Nascimento</label>
+                            <p class="info-data" id="user-dob">{{ usuario.data_nascimento | default('Não informado') }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Gênero</label>
+                            <p class="info-data" id="user-gender">{{ usuario.genero | default('Não informado') }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Card de Endereço -->
-            <div class="profile-card">
-                <h2 class="card-title">Endereço</h2>
-                <div class="info-grid">
-                    <!-- CEP -->
-                    <div class="info-item">
-                        <label class="info-label">CEP</label>
-                        <p class="info-data" id="user-cep">{{ usuario.cep }}</p>
-                    </div>
-                    <!-- Endereço Completo -->
-                    <div class="info-item info-item-full">
-                        <label class="info-label">Endereço</label>
-                        <p class="info-data" id="user-address">{{ usuario.endereco }}</p>
+                
+                <div class="profile-card">
+                    <h2 class="card-title">Endereço</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label class="info-label">CEP</label>
+                            <p class="info-data" id="user-cep">{{ usuario.cep | default('Não informado') }}</p>
+                        </div>
+                        <div class="info-item info-item-full">
+                            <label class="info-label">Endereço</label>
+                            <p class="info-data" id="user-address">{{ usuario.endereco | default('Não informado') }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Card de Doador -->
-            <div class="profile-card">
-                <h2 class="card-title">Informações de Doador</h2>
-                <div class="info-grid">
-                    <!-- Tipo Sanguíneo -->
-                    <div class="info-item">
-                        <label class="info-label">Tipo Sanguíneo</label>
-                        <p class="info-data info-data-highlight" id="user-blood-type">{{ usuario.tipo_sanguineo }}</p>
-                    </div>
-                    <!-- Já Doou? -->
-                    <div class="info-item">
-                        <label class="info-label">Já doou sangue?</label>
-                        <p class="info-data" id="user-has-donated">{{ "Sim" if usuario.ja_doou == 'sim' else "Não" }}</p>
-                    </div>
-                    <!-- Primeira Doação (Campo condicional) -->
-                    <div class="info-item" id="first-donation-item" style="{{ 'display: grid;' if usuario.ja_doou == 'sim' else 'display: none;' }}">
-                        <label class="info-label">Primeira vez</label>
-                        <p class="info-data" id="user-first-donation">{{ usuario.primeira_vez }}</p>
+                <div class="profile-card">
+                    <h2 class="card-title">Informações de Doador</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label class="info-label">Tipo Sanguíneo</label>
+                            <p class="info-data info-data-highlight" id="user-blood-type">{{ usuario.tipo_sanguineo | default('Não informado') }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Já doou sangue?</label>
+                            <p class="info-data" id="user-has-donated">{{ "Sim" if usuario.ja_doou == 'sim' else "Não" }}</p>
+                        </div>
+                        <div class="info-item" id="first-donation-item" style="{{ 'display: grid;' if usuario.ja_doou == 'sim' else 'display: none;' }}">
+                            <label class="info-label">Primeira vez</label>
+                            <p class="info-data" id="user-first-donation">{{ usuario.primeira_vez | default('Não informado') }}</p>
+                        </div>
+                        <div class="info-item" id="interest-item" style="{{ 'display: grid;' if usuario.ja_doou == 'nao' else 'display: none;' }}">
+                            <label class="info-label">Interesse em doar</label>
+                            <p class="info-data" id="user-interest">{{ "Sim" if usuario.interesse == 'sim' else "Não" if usuario.interesse == 'nao' else 'Não informado' }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <button type="button" class="edit-button">Editar Perfil</button>
-
+                
+                <button type="button" class="edit-button">Editar Perfil</button>
+            {% endif %}
         </section>
     </main>
 
-        <!-- Footer include -->
-        {% include 'components/footer.html' %}
+    {% include 'components/footer.html' %}
 
-    <!-- 
-      CAMINHOS DE SCRIPT CORRIGIDOS: 
-    -->
     <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/perfil.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
