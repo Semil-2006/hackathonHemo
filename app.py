@@ -350,7 +350,17 @@ def inject_usuario():
 # -----------------------------
 @app.route('/')
 def index():
-    return render_template('index.html')
+    cookie_usuario_id = request.cookies.get('usuario_id')
+    login_time = request.cookies.get('login_time')
+    logged_in = False
+    if cookie_usuario_id and login_time:
+        try:
+            login_time_dt = datetime.fromisoformat(login_time)
+            if datetime.utcnow() - login_time_dt <= timedelta(days=4):
+                logged_in = True
+        except (ValueError, TypeError):
+            pass
+    return render_template('index.html', logged_in=logged_in)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -359,7 +369,7 @@ def login():
         senha = request.form.get('password')
         if not email or not senha:
             logging.error("Email ou senha não fornecidos")
-            return render_template('login.html', error="Por favor, preencha todos os campos.")
+            return render_template('login.html', error="Por favor, preencha todos os campos.", logged_in=False)
         conn = sqlite3.connect('database.db')
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
@@ -368,7 +378,7 @@ def login():
         conn.close()
         if not usuario:
             logging.error(f"Usuário com email {email} não encontrado")
-            return render_template('login.html', error="Email ou senha inválidos")
+            return render_template('login.html', error="Email ou senha inválidos", logged_in=False)
         if check_password_hash(usuario['senha'], senha):
             user = User(usuario['id'], usuario['email'], usuario['nome'])
             login_user(user)
@@ -376,12 +386,20 @@ def login():
             return redirect(url_for('perfil'))
         else:
             logging.error(f"Senha inválida para email {email}")
-            return render_template('login.html', error="Email ou senha inválidos")
+            return render_template('login.html', error="Email ou senha inválidos", logged_in=False)
     return render_template('login.html', logged_in=False)
+
+@app.route('/logout')
+def logout():
+    response = make_response(redirect(url_for('login')))
+    response.delete_cookie('usuario_id')
+    response.delete_cookie('login_time')
+    logging.debug("Usuário deslogado, cookies removidos")
+    return response
 
 @app.route('/cadastro')
 def cadastro():
-    return render_template('cadastro.html')
+    return render_template('cadastro.html', logged_in=False)
 
 @app.route('/campanhas')
 def campanhas():
@@ -398,6 +416,17 @@ def campanhas():
         logging.exception("Erro ao carregar campanhas")
         return render_template('campanhas.html', campanhas=[], erro=str(e))
 
+    cookie_usuario_id = request.cookies.get('usuario_id')
+    login_time = request.cookies.get('login_time')
+    logged_in = False
+    if cookie_usuario_id and login_time:
+        try:
+            login_time_dt = datetime.fromisoformat(login_time)
+            if datetime.utcnow() - login_time_dt <= timedelta(days=4):
+                logged_in = True
+        except (ValueError, TypeError):
+            pass
+    return render_template('campanhas.html', logged_in=logged_in)
 
 @app.route('/campanhas_admin')
 def campanhas_admin():
@@ -405,7 +434,7 @@ def campanhas_admin():
 
 @app.route('/dashboard_admin')
 def dashboard_admin():
-    return render_template('dashboard_admin.html')
+    return render_template('dashboard_admin.html', logged_in=False)
 
 
 @app.route('/submit', methods=['POST'])
@@ -440,6 +469,84 @@ def submit():
     logging.debug(f"Usuário cadastrado com ID: {user_id}")
     return redirect(url_for('perfil'))
 
+@app.route('/editar_perfil', methods=['POST'])
+def editar_perfil():
+    cookie_usuario_id = request.cookies.get('usuario_id')
+    if not cookie_usuario_id:
+        logging.debug("Nenhum cookie de usuário encontrado, redirecionando para login")
+        return redirect(url_for('login'))
+    
+    data = request.form.to_dict()
+    user_id = int(cookie_usuario_id)
+    
+    required_fields = ['nome', 'email', 'telefone', 'tipo_sanguineo', 'data_nascimento', 'genero', 'cep', 'endereco', 'ja_doou', 'interesse']
+    for field in required_fields:
+        if not data.get(field):
+            logging.error(f"Campo obrigatório ausente: {field}")
+            return render_template('perfil.html', error="Por favor, preencha todos os campos obrigatórios.", logged_in=True)
+    
+    senha = data.get('senha')
+    senha_hash = generate_password_hash(senha) if senha else None
+    
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    if senha:
+        c.execute('''
+            UPDATE usuarios SET
+                nome = ?, email = ?, telefone = ?, tipo_sanguineo = ?, data_nascimento = ?,
+                genero = ?, cep = ?, endereco = ?, ja_doou = ?, primeira_vez = ?,
+                interesse = ?, autoriza_msg = ?, autoriza_dados = ?, senha = ?
+            WHERE id = ?
+        ''', (
+            data.get('nome'), data.get('email'), data.get('telefone'),
+            data.get('tipo_sanguineo'), data.get('data_nascimento'), data.get('genero'),
+            data.get('cep'), data.get('endereco'), data.get('ja_doou'), data.get('primeira_vez'),
+            data.get('interesse'), 1 if data.get('autoriza_msg') == 'sim' else 0,
+            1 if data.get('autoriza_dados') == 'sim' else 0, senha_hash, user_id
+        ))
+    else:
+        c.execute('''
+            UPDATE usuarios SET
+                nome = ?, email = ?, telefone = ?, tipo_sanguineo = ?, data_nascimento = ?,
+                genero = ?, cep = ?, endereco = ?, ja_doou = ?, primeira_vez = ?,
+                interesse = ?, autoriza_msg = ?, autoriza_dados = ?
+            WHERE id = ?
+        ''', (
+            data.get('nome'), data.get('email'), data.get('telefone'),
+            data.get('tipo_sanguineo'), data.get('data_nascimento'), data.get('genero'),
+            data.get('cep'), data.get('endereco'), data.get('ja_doou'), data.get('primeira_vez'),
+            data.get('interesse'), 1 if data.get('autoriza_msg') == 'sim' else 0,
+            1 if data.get('autoriza_dados') == 'sim' else 0, user_id
+        ))
+    
+    conn.commit()
+    conn.close()
+    
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute('SELECT * FROM usuarios WHERE id = ?', (user_id,))
+    usuario_data = c.fetchone()
+    conn.close()
+    
+    if usuario_data is None:
+        logging.error(f"Nenhum usuário encontrado para ID: {user_id}")
+        return render_template('perfil.html', error="Usuário não encontrado.", logged_in=False)
+    
+    usuario = dict(usuario_data)
+    usuario["nivel"] = "Doador Iniciante"
+    usuario["progressoPercentual"] = usuario["pontos"] * 10
+    usuario["selos"] = []
+    if usuario["ja_doou"] == 'sim':
+        usuario["selos"].append({
+            "nome": "Primeira Doação!",
+            "caminhoImagem": "assets/selo-primeira-doacao.png"
+        })
+    
+    logging.debug(f"Perfil atualizado para usuário ID: {user_id}")
+    return render_template('perfil.html', usuario=usuario, success="Perfil atualizado com sucesso!", logged_in=True)
+
+@app.route('/perfil/')
 @app.route('/perfil/<int:usuario_id>')
 @app.route('/perfil/')
 @login_required
@@ -471,7 +578,7 @@ def perfil(usuario_id=None):
     conn.close()
     if usuario_data is None:
         logging.error(f"Nenhum usuário encontrado para ID: {usuario_id}")
-        return render_template('perfil.html', error="Usuário não encontrado. Por favor, faça login ou cadastre-se novamente.")
+        return render_template('perfil.html', error="Usuário não encontrado. Por favor, faça login ou cadastre-se novamente.", logged_in=False)
     usuario = dict(usuario_data)
     usuario['participacoes'] = [dict(r) for r in participations_rows] if participations_rows else []
     # Compute participation-based stats
@@ -840,7 +947,7 @@ def enviar_email_page():
 
 @app.route('/recuperar', methods=['GET'])
 def recuperar():
-    return render_template('recuperar_senha.html')
+    return render_template('recuperar_senha.html', logged_in=False)
 
 
 @app.route('/api/me')
@@ -867,9 +974,9 @@ def email_submit():
     """
     resultado = enviar_email(email, 'Recuperação de Senha', corpo)
     if resultado['status'] == 'sucesso':
-        return render_template('recuperar_senha.html', sucesso=True)
+        return render_template('recuperar_senha.html', sucesso=True, logged_in=False)
     else:
-        return render_template('recuperar_senha.html', erro=resultado['mensagem'])
+        return render_template('recuperar_senha.html', erro=resultado['mensagem'], logged_in=False)
 
 @app.route('/enviar_email', methods=['POST'])
 def enviar_email_api():
@@ -880,8 +987,18 @@ def enviar_email_api():
 
 @app.route('/conscientizacao')
 def conscientizacao():
+    cookie_usuario_id = request.cookies.get('usuario_id')
+    login_time = request.cookies.get('login_time')
+    logged_in = False
+    if cookie_usuario_id and login_time:
+        try:
+            login_time_dt = datetime.fromisoformat(login_time)
+            if datetime.utcnow() - login_time_dt <= timedelta(days=4):
+                logged_in = True
+        except (ValueError, TypeError):
+            pass
     nome = request.args.get('nome', 'Doador')
-    return render_template('conscientizacao.html', nome=nome, pontos=0)
+    return render_template('conscientizacao.html', nome=nome, pontos=0, logged_in=logged_in)
 
 
 
