@@ -1,8 +1,8 @@
 <!-- 
-  CORREÇÃO AQUI: 
-  - Troquei "bg-gray-50" por "bg-white" a pedido.
-  - Removi as classes dark: desnecessárias para um header branco.
-  - Corrigi o padding para "p-2" e logo para "h-12" (das nossas versões anteriores).
+  CORREÇÃO: 
+  - Adicionado controle condicional com `logged_in` para mostrar "Entrar"/"Cadastrar" ou "Meu Perfil"/"Sair".
+  - Mantido o estilo branco (bg-white) e ajustes de padding/logo conforme solicitado.
+  - Adicionado botão "Sair" com ação de logout (nova rota /logout será adicionada em app.py).
 -->
 <nav class="bg-white w-full z-20 top-0 start-0 border-b border-gray-200">
   <div
@@ -19,11 +19,29 @@
       />
     </a>
     <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-      <a
-        href="{{ url_for('login') }}"
-        class="text-white bg-red-600 hover:bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center"
-        >Entrar</a
-      >
+      {% if not logged_in %}
+        <a
+          href="{{ url_for('login') }}"
+          class="text-white bg-red-600 hover:bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center"
+          >Entrar</a
+        >
+        <a
+          href="{{ url_for('cadastro') }}"
+          class="text-white bg-red-600 hover:bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center ml-2"
+          >Cadastrar</a
+        >
+      {% else %}
+        <a
+          href="{{ url_for('perfil') }}"
+          class="text-white bg-red-600 hover:bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center"
+          >Meu Perfil</a
+        >
+        <a
+          href="{{ url_for('logout') }}"
+          class="text-white bg-red-600 hover:bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center ml-2"
+          >Sair</a
+        >
+      {% endif %}
       <button
         data-collapse-toggle="navbar-sticky"
         type="button"
@@ -31,7 +49,7 @@
         aria-controls="navbar-sticky"
         aria-expanded="false"
       >
-        <span class="sr-only">Cadastre-se</span>
+        <span class="sr-only">Abrir menu</span>
         <svg
           class="w-5 h-5"
           aria-hidden="true"
@@ -53,10 +71,6 @@
       class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
       id="navbar-sticky"
     >
-      <!-- 
-      CORREÇÃO AQUI: 
-      - Troquei "bg-gray-50" e "md:bg-gray-50" por "bg-white" e "md:bg-white".
-    -->
       <ul
         class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-white md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white"
       >

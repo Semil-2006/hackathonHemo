@@ -99,33 +99,78 @@
                     <input type="text" id="primeira_vez" name="primeira_vez" class="form-input">
                 </div>
 
-                <div id="pergunta_nao" class="form-group conditional-group">
-                    <label for="interesse" class="form-label">Tem interesse em doar sangue?</label>
-                    <input type="text" id="interesse" name="interesse" class="form-input">
-                </div>
-                
-                <div class="form-group-inline">
-                    <input id="autoriza_msg" name="autoriza_msg" type="checkbox" value="" class="form-checkbox" />
-                    <label for="autoriza_msg" class="form-label-inline">
-                        Autorizo receber mensagens
-                    </label>
-                </div>
-                 <div class="form-group-inline">
-                    <input id="autoriza_dados" name="autoriza_dados" type="checkbox" value="" class="form-checkbox" required />
-                    <label for="autoriza_dados" class="form-label-inline">
-                        Autorizo o uso dos meus dados conforme a LGPD
-                    </label>
-                </div>
-                
-                <button type="submit" class="submit-button">Enviar Cadastro</button>
-            
-            </form>
-        </section>
-    </main>
+    <footer class="footer">
+    </footer>
 
     {% include 'components/footer.html' %}
     <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/cadastro.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
-</body>
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('senha');
+            const eyeIcon = document.getElementById('eye-icon');
+            const isPassword = passwordInput.type === 'password';
+            
+            passwordInput.type = isPassword ? 'text' : 'password';
+            eyeIcon.innerHTML = isPassword 
+                ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>`
+                : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>`;
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      };
+
+      // REFERÊNCIAS DOS ELEMENTOS PARA AUTORIZAÇÃO
+      const submitBtn = document.querySelector(".submit-button");
+      const authMsg = document.getElementById("autoriza_msg");
+      const authDados = document.getElementById("autoriza_dados");
+
+      // Adiciona listeners para ambos os checkboxes
+      authMsg.addEventListener("change", checkAuthorization);
+      authDados.addEventListener("change", checkAuthorization);
+
+        document.getElementById('back-to-top').addEventListener('click', scrollToTop);
+
+        window.onscroll = function() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById('back-to-top').style.display = 'block';
+            } else {
+                document.getElementById('back-to-top').style.display = 'none';
+            }
+        };
+
+        const submitBtn = document.querySelector('.submit-button');
+        const authDados = document.getElementById('autoriza_dados');
+
+        submitBtn.disabled = !authDados.checked;
+
+        authDados.addEventListener('change', () => {
+            submitBtn.disabled = !authDados.checked;
+        });
+
+        const jaDoouSelect = document.getElementById('ja_doou');
+        const perguntaSim = document.getElementById('pergunta_sim');
+        const perguntaNao = document.getElementById('pergunta_nao');
+        const interesseSelect = document.getElementById('interesse');
+
+        jaDoouSelect.addEventListener('change', () => {
+            if (jaDoouSelect.value === 'sim') {
+                perguntaSim.style.display = 'block';
+                perguntaNao.style.display = 'none';
+                interesseSelect.removeAttribute('required');
+            } else if (jaDoouSelect.value === 'nao') {
+                perguntaSim.style.display = 'none';
+                perguntaNao.style.display = 'block';
+                interesseSelect.setAttribute('required', 'required');
+            } else {
+                perguntaSim.style.display = 'none';
+                perguntaNao.style.display = 'none';
+                interesseSelect.removeAttribute('required');
+            }
+        });
+    </script>
+  </body>
 </html>
