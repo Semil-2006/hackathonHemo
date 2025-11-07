@@ -177,10 +177,29 @@ init_participations_table()
 # -----------------------------
 def enviar_email(para, assunto, mensagem):
     try:
-        msg = Message(subject=assunto, recipients=[para], body=mensagem)
+        # If SMTP not configured, write to an outbox folder for local testing
+        mail_server = app.config.get('MAIL_SERVER')
+        mail_user = app.config.get('MAIL_USERNAME')
+        if not mail_server or not mail_user:
+            try:
+                os.makedirs('outbox', exist_ok=True)
+                safe_email = (para or 'no-reply').replace('@', '_at_').replace('/', '_')
+                filename = f"outbox/{datetime.utcnow().strftime('%Y%m%d%H%M%S%f')}_{safe_email}.eml"
+                with open(filename, 'w', encoding='utf-8') as fh:
+                    fh.write(f"To: {para}\nSubject: {assunto}\n\n{mensagem}")
+                logging.info(f"E-mail gravado em outbox (SMTP não configurado): {filename}")
+                return {'status': 'sucesso', 'mensagem': f'E-mail gravado em outbox: {filename}'}
+            except Exception:
+                logging.exception('Falha ao gravar e-mail em outbox')
+                # continue to attempt real send if possible
+
+        # Compose and send real email
+        msg = Message(subject=assunto, recipients=[para], body=mensagem, sender=app.config.get('MAIL_DEFAULT_SENDER'))
         mail.send(msg)
+        logging.info(f"E-mail enviado para {para} assunto='{assunto}'")
         return {'status': 'sucesso', 'mensagem': 'E-mail enviado com sucesso!'}
     except Exception as e:
+        logging.exception(f'Erro ao enviar email para {para}')
         return {'status': 'erro', 'mensagem': str(e)}
 
 
@@ -206,6 +225,125 @@ def load_user(user_id):
     except Exception:
         return None
     return None
+
+
+# Inject a safe `usuario` object into all templates so templates referencing
+# `usuario` don't raise UndefinedError when routes don't pass it explicitly.
+@app.context_processor
+def inject_usuario():
+    try:
+        if getattr(current_user, 'is_authenticated', False):
+            uid = int(current_user.id)
+            conn = sqlite3.connect('database.db')
+            conn.row_factory = sqlite3.Row
+            c = conn.cursor()
+            c.execute('SELECT * FROM usuarios WHERE id = ?', (uid,))
+            row = c.fetchone()
+            if not row:
+                conn.close()
+                return {'usuario': {}}
+
+            usuario = dict(row)
+            # participations
+            c.execute('''
+                SELECT p.id as participacao_id, p.joined_at, c.*
+                FROM participacoes p
+                JOIN campanhas c ON p.campanha_id = c.id
+                WHERE p.usuario_id = ?
+                ORDER BY p.joined_at DESC
+            ''', (uid,))
+            parts = c.fetchall()
+            conn.close()
+            usuario['participacoes'] = [dict(r) for r in parts] if parts else []
+            participation_count = len(usuario['participacoes'])
+
+            # compute level
+            if participation_count >= 6:
+                nivel = 'Doador Heróico'
+            elif participation_count >= 3:
+                nivel = 'Doador Comprometido'
+            elif participation_count >= 1:
+                nivel = 'Doador Iniciante'
+            else:
+                nivel = usuario.get('nivel') or 'Não classificado'
+
+            usuario['nivel'] = usuario.get('nivel') or nivel
+
+            # thresholds
+            if participation_count >= 6:
+                next_threshold = 6
+                next_level_name = 'Nível Máximo'
+            elif participation_count >= 3:
+                next_threshold = 6
+                next_level_name = 'Doador Heróico'
+            elif participation_count >= 1:
+                next_threshold = 3
+                next_level_name = 'Doador Comprometido'
+            else:
+                next_threshold = 1
+                next_level_name = 'Doador Iniciante'
+
+            progresso = int(min(100, (participation_count / next_threshold) * 100)) if next_threshold else 0
+            usuario['participation_count'] = participation_count
+            usuario['next_threshold'] = next_threshold
+            usuario['next_level_name'] = next_level_name
+            usuario['participations_to_next'] = max(0, next_threshold - participation_count)
+            usuario['progress_text'] = f"{participation_count}/{next_threshold}"
+            usuario['progressoPercentual'] = progresso
+
+            # selos
+            selos = []
+            if usuario.get('ja_doou') == 'sim' or usuario.get('primeira_vez'):
+                selos.append({ 'nome': 'Primeira Doação', 'caminhoImagem': 'assets/selo-primeira-doacao.png' })
+            if participation_count >= 1:
+                selos.append({ 'nome': 'Iniciante', 'caminhoImagem': 'assets/emblemas/1.png' })
+            if participation_count >= 3:
+                selos.append({ 'nome': 'Comprometido', 'caminhoImagem': 'assets/emblemas/2.png' })
+            if participation_count >= 6:
+                selos.append({ 'nome': 'Heróico', 'caminhoImagem': 'assets/emblemas/3.png' })
+            usuario['selos'] = selos
+
+            # build full set of available emblems (all_selos) and mark unlocked
+            unlocked_names = set(s['nome'] for s in usuario['selos'])
+            all_selos = [
+                { 'nome': 'Primeira Doação', 'caminhoImagem': 'assets/selo-primeira-doacao.png' },
+                { 'nome': 'Iniciante', 'caminhoImagem': 'assets/emblemas/1.png' },
+                { 'nome': 'Comprometido', 'caminhoImagem': 'assets/emblemas/2.png' },
+                { 'nome': 'Heróico', 'caminhoImagem': 'assets/emblemas/3.png' },
+                # additional emblems (locked by default unless added above)
+                { 'nome': 'Salvador de Vidas', 'caminhoImagem': 'assets/emblemas/4.png' },
+                { 'nome': 'Tipo O Universal', 'caminhoImagem': 'assets/emblemas/5.png' },
+                { 'nome': 'Fidelidade', 'caminhoImagem': 'assets/emblemas/6.png' },
+            ]
+            for s in all_selos:
+                s['unlocked'] = (s['nome'] in unlocked_names)
+
+            return {'usuario': usuario, 'all_selos': all_selos}
+    except Exception:
+        pass
+
+    # default anonymous usuario to avoid template errors
+    default = {
+        'nivel': 'Doador Iniciante',
+        'progressoPercentual': 0,
+        'next_level_name': None,
+        'progress_text': '0/1',
+        'participations_to_next': 1,
+        'selos': [],
+        'participacoes': [],
+        'participation_count': 0
+    }
+    # also include all_selos for anonymous users (all locked)
+    all_selos = [
+        { 'nome': 'Primeira Doação', 'caminhoImagem': 'assets/selo-primeira-doacao.png', 'unlocked': False },
+        { 'nome': 'Iniciante', 'caminhoImagem': 'assets/emblemas/1.png', 'unlocked': False },
+        { 'nome': 'Comprometido', 'caminhoImagem': 'assets/emblemas/2.png', 'unlocked': False },
+        { 'nome': 'Heróico', 'caminhoImagem': 'assets/emblemas/3.png', 'unlocked': False },
+        { 'nome': 'Salvador de Vidas', 'caminhoImagem': 'assets/emblemas/4.png', 'unlocked': False },
+        { 'nome': 'Tipo O Universal', 'caminhoImagem': 'assets/emblemas/5.png', 'unlocked': False },
+        { 'nome': 'Fidelidade', 'caminhoImagem': 'assets/emblemas/6.png', 'unlocked': False },
+    ]
+    return {'usuario': default, 'all_selos': all_selos}
 
 # -----------------------------
 # Rotas
@@ -247,7 +385,19 @@ def cadastro():
 
 @app.route('/campanhas')
 def campanhas():
-    return render_template('campanhas.html')
+    try:
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        # Buscar somente campanhas com status "Ativa"
+        c.execute("SELECT * FROM campanhas WHERE status = 'Ativa' ORDER BY created_at DESC")
+        campanhas_ativas = c.fetchall()
+        conn.close()
+        return render_template('campanhas.html', campanhas=campanhas_ativas)
+    except Exception as e:
+        logging.exception("Erro ao carregar campanhas")
+        return render_template('campanhas.html', campanhas=[], erro=str(e))
+
 
 @app.route('/campanhas_admin')
 def campanhas_admin():

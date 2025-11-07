@@ -8,16 +8,13 @@ async function carregarCampanhas() {
   body.innerHTML = '<tr class="table-row"><td colspan="3" class="table-loading">Carregando campanhas...</td></tr>';
 
   try {
-  const res = await fetch('/api/campaigns');
+    const res = await fetch('/api/campaigns');
     if (!res.ok) throw new Error('Falha ao buscar campanhas');
     const data = await res.json();
     campanhasAtuais = data.campaigns || [];
 
-    // try to fetch my participations to mark buttons
-  await carregarMinhasParticipacoes();
-
+    await carregarMinhasParticipacoes();
     renderizarTabela(campanhasAtuais);
-    atualizarEstatisticas(campanhasAtuais);
   } catch (err) {
     console.error(err);
     body.innerHTML = '<tr class="table-row"><td colspan="3" class="table-loading">Não foi possível carregar campanhas.</td></tr>';
@@ -64,7 +61,6 @@ function renderizarTabela(campanhas) {
     }
 
     tdAcao.appendChild(btn);
-
     tr.appendChild(tdNome);
     tr.appendChild(tdTipo);
     tr.appendChild(tdAcao);
@@ -72,52 +68,30 @@ function renderizarTabela(campanhas) {
   });
 }
 
-function atualizarEstatisticas(campanhas) {
-  const totalAtivas = campanhas.filter(c => (c.status || 'Ativa') === 'Ativa').length;
-  const totalParticipantes = campanhas.reduce((s, c) => s + (parseInt(c.participantes) || 0), 0);
-  const totalVagas = campanhas.reduce((s, c) => s + (parseInt(c.vagas) || 0), 0);
-
-  document.getElementById('totalCampanhas').textContent = totalAtivas;
-  document.getElementById('totalParticipantes').textContent = totalParticipantes;
-  document.getElementById('vagasDisponiveis').textContent = Math.max(totalVagas - totalParticipantes, 0);
-}
-
 async function participarCampanha(botao, campanhaObj) {
-  // Verifica se o usuário está autenticado antes de abrir o modal.
-  // Assunção: existe um endpoint `/api/me` que retorna 200 com dados do usuário quando autenticado
-  // e 401 quando não autenticado. Se esse endpoint for diferente no seu backend, ajuste a URL.
   try {
-      const res = await fetch('/api/me', {
-        method: 'GET',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': 'application/json'
-        },
-        credentials: 'same-origin'
-      });
+    const res = await fetch('/api/me', {
+      method: 'GET',
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+      credentials: 'same-origin'
+    });
     if (res.status === 401) {
-      // Usuário não autenticado -> redireciona para a tela de login
       window.location.href = '/login';
       return;
     }
-    // Se retornou outro erro, permitimos o fluxo (o backend também valida na confirmação).
   } catch (err) {
-    // Se a verificação falhar por rede, deixamos o fluxo prosseguir e o servidor validará na confirmação.
     console.warn('Falha ao verificar autenticação:', err);
   }
 
-  // Abre o modal de confirmação
   campanhaSelecionada = campanhaObj;
   botaoSelecionado = botao;
 
-  // campanhaObj pode ser um objeto com campos (quando vindo da API) ou uma string (fallback estático).
   const nome = campanhaObj && (campanhaObj.nome || campanhaObj) || 'Campanha';
   const tipo = campanhaObj && (campanhaObj.tipo_sanguineo || campanhaObj.tipoSanguineo || '') || '';
 
-  const modalMessage = `Você está prestes a participar da campanha:<br><strong>${nome}</strong><br><br>Tipo sanguíneo necessário: <strong>${tipo || 'Todos'}</strong>`;
-  document.getElementById('modalMessage').innerHTML = modalMessage;
-  // O CSS define `.modal-overlay { display: none }` por padrão,
-  // então usamos style.display para mostrar o modal (flex para centralizar)
+  document.getElementById('modalMessage').innerHTML = 
+    `Você está prestes a participar da campanha:<br><strong>${nome}</strong><br><br>Tipo sanguíneo necessário: <strong>${tipo || 'Todos'}</strong>`;
+
   const modalEl = document.getElementById('confirmModal');
   if (modalEl) modalEl.style.display = 'flex';
 }
@@ -125,24 +99,23 @@ async function participarCampanha(botao, campanhaObj) {
 async function confirmarParticipacao() {
   if (!campanhaSelecionada) return fecharModal();
   const campaignId = campanhaSelecionada && campanhaSelecionada.id;
+
   try {
     if (campaignId) {
-        const res = await fetch(`/api/campaigns/${campaignId}/participate`, {
-          method: 'POST',
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          credentials: 'same-origin'
+      const res = await fetch(`/api/campaigns/${campaignId}/participate`, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
       });
       if (res.status === 401) {
-        // not logged in (session expired) -> redirect to login
         window.location.href = '/login';
         return;
       }
       if (res.status === 409) {
-        // Already subscribed (server-side) - update UI accordingly
         if (botaoSelecionado) {
           botaoSelecionado.textContent = 'Participando ✓';
           botaoSelecionado.disabled = true;
@@ -157,7 +130,6 @@ async function confirmarParticipacao() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erro ao participar');
 
-      // Update UI for API-backed campaign
       if (botaoSelecionado) {
         botaoSelecionado.textContent = 'Participando ✓';
         botaoSelecionado.disabled = true;
@@ -165,12 +137,10 @@ async function confirmarParticipacao() {
         const linha = botaoSelecionado.closest('tr');
         if (linha) linha.classList.add('bg-green-50');
       }
-    minhasParticipacoesIds.add(String(campaignId));
-  mostrarMensagemSucesso(`Você agora está participando da campanha: ${campanhaSelecionada.nome}`, '/perfil');
-      // refresh stats
+      minhasParticipacoesIds.add(String(campaignId));
+      mostrarMensagemSucesso(`Você agora está participando da campanha: ${campanhaSelecionada.nome}`, '/perfil');
       await carregarCampanhas();
     } else {
-      // Fallback para campanhas estáticas (sem id): simulamos participação localmente
       if (botaoSelecionado) {
         botaoSelecionado.textContent = 'Participando ✓';
         botaoSelecionado.disabled = true;
@@ -178,9 +148,8 @@ async function confirmarParticipacao() {
         const linha = botaoSelecionado.closest('tr');
         if (linha) linha.classList.add('bg-green-50');
       }
-    mostrarMensagemSucesso(`Você agora está participando da campanha: ${campanhaSelecionada && (campanhaSelecionada.nome || campanhaSelecionada)}`, '/perfil');
-      // Recalcula estatísticas localmente recarregando a lista (se aplicável)
-      try { await carregarCampanhas(); } catch (e) { /* non-blocking */ }
+      mostrarMensagemSucesso(`Você agora está participando da campanha: ${campanhaSelecionada && (campanhaSelecionada.nome || campanhaSelecionada)}`, '/perfil');
+      await carregarCampanhas();
     }
   } catch (err) {
     console.error(err);
@@ -192,10 +161,9 @@ async function confirmarParticipacao() {
 
 async function carregarMinhasParticipacoes() {
   try {
-  const res = await fetch('/api/my_participations', { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const res = await fetch('/api/my_participations', { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
     if (!res.ok) return;
     const data = await res.json();
-    // Normalize ids to strings to avoid type mismatches between DB and JS
     const ids = (data.participations || []).map(p => String(p.id || p.campanha_id || p.campaign_id || p.campanhaId || p.campaignId));
     minhasParticipacoesIds = new Set(ids);
   } catch (err) {
@@ -203,7 +171,6 @@ async function carregarMinhasParticipacoes() {
   }
 }
 
-// Função para fechar modal
 function fecharModal() {
   const modalEl = document.getElementById('confirmModal');
   if (modalEl) modalEl.style.display = 'none';
@@ -211,9 +178,7 @@ function fecharModal() {
   botaoSelecionado = null;
 }
 
-// Mensagens
 function mostrarMensagemSucesso(mensagem) {
-  // optional second argument may be a URL to view details (like '/perfil')
   const url = arguments[1] || null;
   const mensagemDiv = document.createElement('div');
   mensagemDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-transform duration-300';
@@ -230,23 +195,67 @@ function mostrarMensagemErro(mensagem) {
   setTimeout(() => mensagemDiv.remove(), 3000);
 }
 
-// Fechar modal ao clicar fora (guarda null-safe)
 const _confirmModalEl = document.getElementById('confirmModal');
 if (_confirmModalEl) {
   _confirmModalEl.addEventListener('click', function (e) {
-    if (e.target === this) {
-      fecharModal();
-    }
+    if (e.target === this) fecharModal();
   });
 }
 
-// Fechar modal com ESC
 document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') {
-    fecharModal();
-  }
+  if (e.key === 'Escape') fecharModal();
 });
 
 document.addEventListener('DOMContentLoaded', () => {
   carregarCampanhas();
+});
+
+async function carregarEstatisticas() {
+  try {
+    // Buscar informações do usuário
+    const resUsuario = await fetch('/api/me', { credentials: 'same-origin' });
+    let usuario = {};
+    if (resUsuario.ok) {
+      usuario = await resUsuario.json();
+    }
+
+    // Buscar participações
+    const resParticipacoes = await fetch('/api/my_participations', { credentials: 'same-origin' });
+    let participacoesCount = 0;
+    if (resParticipacoes.ok) {
+      const dataPart = await resParticipacoes.json();
+      participacoesCount = (dataPart.participations || []).length;
+    }
+
+    // Calcular selos (conquistas) no JS
+    const selos = [];
+    if (usuario.ja_doou === 'sim' || usuario.primeira_vez) {
+      selos.push({ nome: 'Primeira Doação', caminhoImagem: 'assets/selo-primeira-doacao.png' });
+    }
+    if (participacoesCount >= 1) {
+      selos.push({ nome: 'Iniciante', caminhoImagem: 'assets/emblemas/1.png' });
+    }
+    if (participacoesCount >= 3) {
+      selos.push({ nome: 'Comprometido', caminhoImagem: 'assets/emblemas/2.png' });
+    }
+    if (participacoesCount >= 6) {
+      selos.push({ nome: 'Heróico', caminhoImagem: 'assets/emblemas/3.png' });
+    }
+
+    // Atualizar estatísticas na tela
+    const elConquistas = document.getElementById('totalCampanhas');
+    if (elConquistas) elConquistas.textContent = selos.length;
+
+    const elParticipacoes = document.getElementById('totalParticipantes');
+    if (elParticipacoes) elParticipacoes.textContent = participacoesCount;
+
+  } catch (err) {
+    console.error('Erro ao carregar estatísticas:', err);
+  }
+}
+
+// Chama junto com carregarCampanhas
+document.addEventListener('DOMContentLoaded', () => {
+  carregarCampanhas();
+  carregarEstatisticas();
 });

@@ -34,50 +34,6 @@
             {% else %}
                 <form id="profile-form" method="post" action="{{ url_for('update_perfil', usuario_id=usuario.id) }}">
                 <div class="profile-card">
-                    <h2 class="card-title">Minha Jornada de Doador</h2>
-                    
-                    <div class="gamification-level">
-                        <div class="level-info">
-                            <span class="level-title">Nível Atual:</span>
-                            <span class="level-name" id="user-level">
-                                <svg class="level-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                </svg>
-                                {{ usuario.nivel | default('Doador Iniciante') }}
-                            </span>
-                        </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" id="user-progress" style="width: {{ usuario.progressoPercentual | default(0) }}%;"></div>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:1rem;margin-top:0.5rem;">
-                            <span class="progress-label">{% if usuario.next_level_name %}Progresso para {{ usuario.next_level_name }}{% else %}Progresso{% endif %}</span>
-                            <span class="progress-count" style="font-weight:600;color:#dc2626;">{{ usuario.progress_text }}</span>
-                            {% if usuario.participations_to_next is not none and usuario.participations_to_next > 0 %}
-                                <span class="progress-remaining" style="color:#6b7280;font-size:0.9rem;">({{ usuario.participations_to_next }} faltam para o próximo nível)</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                        <div class="badges-section">
-                        <h3 class="badges-title">Conquistas</h3>
-                        <div class="badges-container" id="user-badges">
-                            {% if usuario.selos %}
-                                {% for selo in usuario.selos %}
-                                    <div class="badge" title="{{ selo.nome }}">
-                                        <img src="{{ url_for('static', filename=selo.caminhoImagem) }}" alt="{{ selo.nome }}" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <p class="info-data">Nenhuma conquista ainda.</p>
-                            {% endif %}
-                            <div class="badge badge-locked" title="Herói (10 doações)">
-                                <img src="{{ url_for('static', filename='assets/emblemas/3.png') }}" alt="Selo Herói (Bloqueado)" class="badge-image" onerror="this.src='https://placehold.co/64x64/e0e0e0/b0b0b0?text=Selo';">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-card">
                     <h2 class="card-title">Informações Pessoais</h2>
                     <div class="info-grid">
                         <div class="info-item">
