@@ -1,0 +1,42 @@
+site_name: Documentação LFBagYourDreams
+
+nav:
+  - Página Inicial: index.md
+  - Requisitos:
+  
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  language: pt
+
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/globe-light
+        name: Dark mode
+      primary: black
+      accent: black
+    - scheme: slate
+      toggle:
+        icon: material/globe-light-outline
+        name: Light mode
+      primary: white
+      accent: black
+
+markdown_extensions:
+  - attr_list
+
+extra_css:
+  - css/custom.css
