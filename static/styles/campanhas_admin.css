@@ -1,0 +1,166 @@
+/* --- Estilos da Página de Admin de Campanhas --- */
+
+.main-content {
+    /* Herda flex-grow: 1 do global.css */
+    padding-top: 100px; /* Espaço para o header fixo */
+}
+
+/* Container principal (similar ao 'profile-container') */
+.admin-container {
+    width: 100%;
+    max-width: 1024px; /* Mais largo */
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.admin-title {
+    font-size: 2.25rem; /* text-4xl */
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.admin-subtitle {
+    font-size: 1.125rem; /* text-lg */
+    color: #6b7280;
+    margin-bottom: 2.5rem;
+}
+
+/* Card de Admin (reutiliza 'profile-card') */
+.admin-card {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+/* Reutiliza o título do card de 'perfil.css' */
+.card-title {
+    font-size: 1.25rem; 
+    font-weight: 600;
+    color: #111827;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Grid para o formulário (reutiliza 'info-grid' de 'perfil.css') */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .form-grid {
+        /* 3 colunas para o formulário de criação */
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Reutiliza 'info-item' e 'info-label' de 'perfil.css' */
+.info-item {
+    padding: 0;
+}
+.info-item-full {
+    grid-column: 1 / -1;
+}
+.info-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+/* Reutiliza 'form-input' de 'cadastro.css' (deve estar no global.css ou aqui) */
+.form-input {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    color: #111827;
+    background-color: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+}
+.form-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Reutiliza 'submit-button' de 'cadastro.css' */
+.submit-button {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #ffffff;
+    background-color: #b91c1c;
+    border: none;
+    border-radius: 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.submit-button:hover {
+    background-color: #dc2626;
+}
+
+@media (min-width: 768px) {
+    .submit-button {
+        width: auto; /* Botão menor em telas grandes */
+    }
+}
+
+/* Tabela de Gerenciamento */
+.search-bar-container {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.management-table-container {
+    overflow-x: auto;
+}
+
+/* Reutiliza a maior parte dos estilos de 'campanhas.css' para a tabela */
+.campanhas-table {
+    width: 100%;
+    text-align: left;
+}
+
+/* Botões de Ação na Tabela */
+.action-button-edit, .action-button-delete {
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+    margin-right: 1rem;
+}
+
+.action-button-edit {
+    color: #1d4ed8; /* text-blue-700 */
+}
+.action-button-edit:hover {
+    color: #3b82f6; /* text-blue-500 */
+    text-decoration: underline;
+}
+
+.action-button-delete {
+    color: #b91c1c; /* text-red-700 */
+}
+.action-button-delete:hover {
+    color: #ef4444; /* text-red-500 */
+    text-decoration: underline;
+}
+
+/* Grid para o formulário do Modal */
+.form-grid-modal {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 colunas */
+    gap: 1.5rem;
+}

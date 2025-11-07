@@ -18,7 +18,7 @@
 <body>
 
         <!-- Header include -->
-        {% include 'components/header.html' %}
+        {% include 'components/sidebar.html' %}
     
     <!-- 2. Conteúdo Principal -->
     <main class="main-content">
@@ -160,12 +160,6 @@
         </section>
     </main>
 
-        <!-- Footer include -->
-        {% include 'components/footer.html' %}
-
-    <!-- 
-      CAMINHOS DE SCRIPT CORRIGIDOS: 
-    -->
     <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/perfil.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
