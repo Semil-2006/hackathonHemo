@@ -1,0 +1,67 @@
+.main-content-campaign {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+fieldset {
+    border: 1px solid #ddd;
+    padding: 24px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+legend {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600;
+    padding: 0 10px;
+    /* Tenta usar a variável de cor do seu global.css */
+    color: var(--primary-color, #b91c1c); 
+}
+
+/*
+ * Estilizando o editor Quill.js
+ * (Critério 3 do RF03)
+ */
+#editor-container {
+    height: 250px;
+    background: #fff;
+    border-radius: 8px; 
+    border: 1px solid #ccc; 
+}
+
+#editor-container .ql-toolbar {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+#editor-container .ql-container {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border: 1px solid #ccc;
+    border-top: none; 
+}
+
+/*
+ * Estiliza os botões de ação do formulário
+ */
+.campaign-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/*
+ * Estiliza os subtítulos dos fieldsets
+ */
+.fieldset-subtitle {
+    font-size: 0.9rem; /* 14px */
+    color: #555;
+    margin-bottom: 16px;
+    margin-top: -8px; 
+}

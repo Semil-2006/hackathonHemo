@@ -132,6 +132,10 @@ def cadastro():
 def campanhas():
     return render_template('campanhas.html')
 
+@app.route('/campanhas_admin')
+def campanhas_admin():
+    return render_template('campanhas_admin.html')
+
 @app.route('/dashboard_admin')
 def dashboard_admin():
     return render_template('dashboard_admin.html')
@@ -264,4 +268,17 @@ def conscientizacao():
     return render_template('conscientizacao.html', nome=nome, pontos=0)
 
 if __name__ == '__main__':
+    app.run(debug=True)
+# -----------------------------
+# Enviar Email
+# -----------------------------
+@app.route('/admin/enviar-email')
+# 2. O NOME DA FUNÇÃO ESTÁ CORRETO?
+def enviar_email_page():  # <--- Tem que ser este nome!
+    try:
+        # 3. O NOME DO ARQUIVO ESTÁ CORRETO?
+        return render_template('enviar_email.html')
+    except Exception as e:
+        print(f"Erro ao renderizar enviar_email.html: {e}")
+        return "Erro interno - template não encontrado", 500
     app.run(debug=True)

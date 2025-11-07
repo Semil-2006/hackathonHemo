@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Campanha - Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
+    
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard_admin.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/enviar_email.css') }}">
+</head>
+<body>
+    {% include 'components/header.html' %}
+
+    <main class="main-content-campaign">
+        
+        <h1>
+            <a href="{{ url_for('dashboard_admin_page') }}" style="text-decoration: none;">&larr;</a>
+            Criar Nova Campanha
+        </h1>
+        <p>Envie mensagens personalizadas para os doadores.</p>
+
+        <form id="campaign-form">
+
+            <fieldset>
+                <legend>1. Canal de Disparo</legend>
+                <p class="fieldset-subtitle">Selecione por onde esta campanha será enviada.</p>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <input id="channel-type-email" name="channel-type" type="radio" value="email" class="w-4 h-4" checked>
+                        <label for="channel-type-email" class="ml-2 text-sm font-medium">✉️ E-mail</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="channel-type-whatsapp" name="channel-type" type="radio" value="whatsapp" class="w-4 h-4">
+                        <label for="channel-type-whatsapp" class="ml-2 text-sm font-medium">💬 Canal WhatsApp</label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>2. Segmentação de Doadores</legend>
+                <p class="fieldset-subtitle">Selecione quem irá receber esta mensagem.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="seg-tipo-sanguineo" class="block mb-2 text-sm font-medium text-gray-900">Tipo Sanguíneo</label>
+                        <select id="seg-tipo-sanguineo" multiple class="bg-gray-50 border ...">
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                        <small>Nota: Apenas doadores com consentimento explícito.</small>
+                    </div>
+                    <div>
+                        <label for="seg-cidade" class="block mb-2 text-sm font-medium text-gray-900">Cidade</label>
+                        <select id="seg-cidade" multiple class="bg-gray-50 border ...">
+                            <option value="Brasilia">Brasília</option>
+                            <option value="Goiania">Goiânia</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="seg-classificacao" class="block mb-2 text-sm font-medium text-gray-900">Classificação</label>
+                        <select id="seg-classificacao" class="bg-gray-50 border ...">
+                            <option value="todos">Todos</option>
+                            <option value="primeira_vez">Primeira Vez</option>
+                            <option value="esporadico">Esporádico</option>
+                            <option value="regular">Regular</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="seg-interesse" class="block mb-2 text-sm font-medium text-gray-900">Interesse</label>
+                        <select id="seg-interesse" class="bg-gray-50 border ...">
+                            <option value="todos">Todos</option>
+                            <option value="sim">Com interesse em doar</option>
+                            <option value="nao">Sem interesse</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div id="form-for-email">
+                <fieldset>
+                    <legend>3. Conteúdo do E-mail</legend>
+                    <div>
+                        <label for="msg-remetente" class="block mb-2 text-sm font-medium text-gray-900">Nome do Remetente</label>
+                        <input type="text" id="msg-remetente" class="bg-gray-50 border ..." value="Equipe Hemocentro">
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <label class="block mb-2 text-sm font-medium text-gray-900">Mensagem</label>
+                        <div id="editor-container">
+                            <p>Olá, [nome_doador]!</p>
+                            <p>Escreva sua <strong>mensagem</strong> aqui...</p>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div id="form-for-whatsapp" style="display: none;">
+                <fieldset>
+                    <legend>3. Mensagem para o Canal WhatsApp</legend>
+                    <p class="fieldset-subtitle">
+                        A segmentação por Tipo Sanguíneo selecionará qual canal será usado 
+                        (ex: "Alerta A+"). A mensagem é texto simples.
+                    </p>
+                    <label for="whatsapp-message" class="block mb-2 text-sm font-medium">Mensagem Simples</label>
+                    <textarea id="whatsapp-message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300"></textarea>
+                </fieldset>
+            </div>
+
+            <fieldset>
+                <legend>4. Envio e Agendamento</legend>
+                <div>
+                    <label for="camp-agendamento" class="block mb-2 text-sm font-medium text-gray-900">Agendar envio para:</label>
+                    <input type="datetime-local" id="camp-agendamento" class="bg-gray-50 border ...">
+                    <small>Deixe em branco para enviar imediatamente.</small>
+                </div>
+            </fieldset>
+
+            <div class="campaign-actions">
+                <button type="button" id="btn-enviar-agora" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 ... px-5 py-2.5">
+                    Enviar Agora
+                </button>
+                <button type="button" id="btn-agendar" class="text-gray-900 bg-white border border-gray-300 focus:outline-none ... px-5 py-2.5">
+                    Salvar Agendamento
+                </button>
+            </div>
+        </form>
+    </main>
+
+    {% include 'components/footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    
+    <script src="{{ url_for('static', filename='scripts/enviar_email.js') }}" defer></script>
+</body>
+</html>
