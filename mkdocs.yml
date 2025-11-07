@@ -2,7 +2,7 @@ site_name: Documentação LFBagYourDreams
 
 nav:
   - Página Inicial: index.md
-  - Requisitos:
+  - Requisitos: requisitos.md
   
 theme:
   name: material
