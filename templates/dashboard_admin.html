@@ -24,7 +24,7 @@
     <!-- Header include -->
     {% include 'components/sidebar.html' %}
 
-    <main class="main-content-dashboard">
+    <main class="main-content-dashboard" style="padding: 32px;">
       <!-- Barra de Filtros e Ações -->
       <nav class="filter-nav">
         <div class="filter-container">
@@ -81,7 +81,7 @@
           <div class="filter-group filter-group-auto">
             <button
               class="btn btn-campaign"
-              onclick="window.location.href='admin_nova_campanha.html';"
+              onclick="window.location.href='enviar_email.html';"
             >
               Enviar mensagem
             </button>
@@ -291,19 +291,9 @@
         </div>
       </div>
 
-      <!-- 
-          Presumo que o conteúdo principal do dashboard venha aqui 
-          (ex: gráficos, tabelas). O HTML original estava incompleto.
-        -->
-      <section class="dashboard-main-content">
-        <h1>Visão Geral</h1>
-        <p>Conteúdo principal do dashboard...</p>
-      </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
-
-    <!-- CAMINHOS DE SCRIPT CORRIGIDOS -->
     <script
       src="{{ url_for('static', filename='scripts/global.js') }}"
       defer

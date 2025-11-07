@@ -21,7 +21,7 @@
     <!-- 
       MUDANÇA 2: 'include' do Jinja2 para o header 
     -->
-    {% include 'components/header.html' %}
+    {% include 'components/sidebar.html' %}
 
     <main class="main-content">
         <!-- Conteúdo Principal -->
@@ -112,14 +112,6 @@
         </div>
     </div>
 
-    <!-- 
-      MUDANÇA 4: 'include' do Jinja2 para o footer 
-    -->
-    {% include 'components/footer.html' %}
-
-    <!-- 
-      MUDANÇA 5: Caminhos de JS corrigidos para a pasta 'static' 
-    -->
     <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/list_campanhas.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/campanhas.js') }}"></script>

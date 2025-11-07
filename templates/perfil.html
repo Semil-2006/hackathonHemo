@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/perfil.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/campanhas_admin.css') }}">
 
     <style>
         .error-message {
@@ -19,10 +20,7 @@
 </head>
 <body>
 
-        <!-- Header include -->
         {% include 'components/sidebar.html' %}
-    <!-- Header include -->
-    {% include 'components/header.html' %}
     
     <main class="main-content">
         <section class="profile-container" id="profile-container">
@@ -34,6 +32,7 @@
                 <p class="error-message">{{ error }}</p>
                 <a href="{{ url_for('cadastro') }}" class="edit-button">Cadastrar Agora</a>
             {% else %}
+                <form id="profile-form" method="post" action="{{ url_for('update_perfil', usuario_id=usuario.id) }}">
                 <div class="profile-card">
                     <h2 class="card-title">Minha Jornada de Doador</h2>
                     
@@ -50,10 +49,16 @@
                         <div class="progress-bar-container">
                             <div class="progress-bar" id="user-progress" style="width: {{ usuario.progressoPercentual | default(0) }}%;"></div>
                         </div>
-                        <span class="progress-label">Progresso para Doador Comprometido</span>
+                        <div style="display:flex;align-items:center;gap:1rem;margin-top:0.5rem;">
+                            <span class="progress-label">{% if usuario.next_level_name %}Progresso para {{ usuario.next_level_name }}{% else %}Progresso{% endif %}</span>
+                            <span class="progress-count" style="font-weight:600;color:#dc2626;">{{ usuario.progress_text }}</span>
+                            {% if usuario.participations_to_next is not none and usuario.participations_to_next > 0 %}
+                                <span class="progress-remaining" style="color:#6b7280;font-size:0.9rem;">({{ usuario.participations_to_next }} faltam para o próximo nível)</span>
+                            {% endif %}
+                        </div>
                     </div>
                     
-                    <div class="badges-section">
+                        <div class="badges-section">
                         <h3 class="badges-title">Conquistas</h3>
                         <div class="badges-container" id="user-badges">
                             {% if usuario.selos %}
@@ -77,23 +82,33 @@
                     <div class="info-grid">
                         <div class="info-item">
                             <label class="info-label">Nome Completo</label>
-                            <p class="info-data" id="user-name">{{ usuario.nome | default('Não informado') }}</p>
+                            <p class="info-data view-only" id="user-name">{{ usuario.nome | default('Não informado') }}</p>
+                            <input class="edit-only form-input" style="display:none" type="text" name="nome" id="input-nome" value="{{ usuario.nome | default('') }}">
                         </div>
                         <div class="info-item">
                             <label class="info-label">Email</label>
-                            <p class="info-data" id="user-email">{{ usuario.email | default('Não informado') }}</p>
+                            <p class="info-data view-only" id="user-email">{{ usuario.email | default('Não informado') }}</p>
+                            <input class="edit-only form-input" style="display:none" type="email" name="email" id="input-email" value="{{ usuario.email | default('') }}">
                         </div>
                         <div class="info-item">
                             <label class="info-label">Telefone</label>
-                            <p class="info-data" id="user-phone">{{ usuario.telefone | default('Não informado') }}</p>
+                            <p class="info-data view-only" id="user-phone">{{ usuario.telefone | default('Não informado') }}</p>
+                            <input class="edit-only form-input" style="display:none" type="text" name="telefone" id="input-telefone" value="{{ usuario.telefone | default('') }}">
                         </div>
                         <div class="info-item">
                             <label class="info-label">Data de Nascimento</label>
-                            <p class="info-data" id="user-dob">{{ usuario.data_nascimento | default('Não informado') }}</p>
+                            <p class="info-data view-only" id="user-dob">{{ usuario.data_nascimento | default('Não informado') }}</p>
+                            <input class="edit-only form-input" style="display:none" type="date" name="data_nascimento" id="input-data_nascimento" value="{{ usuario.data_nascimento | default('') }}">
                         </div>
                         <div class="info-item">
                             <label class="info-label">Gênero</label>
-                            <p class="info-data" id="user-gender">{{ usuario.genero | default('Não informado') }}</p>
+                            <p class="info-data view-only" id="user-gender">{{ usuario.genero | default('Não informado') }}</p>
+                            <select class="edit-only form-input" style="display:none" name="genero" id="input-genero">
+                                <option value="">Selecione</option>
+                                <option value="Masculino" {% if usuario.genero == 'Masculino' %}selected{% endif %}>Masculino</option>
+                                <option value="Feminino" {% if usuario.genero == 'Feminino' %}selected{% endif %}>Feminino</option>
+                                <option value="Não binário" {% if usuario.genero == 'Não binário' %}selected{% endif %}>Não binário</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -103,11 +118,13 @@
                     <div class="info-grid">
                         <div class="info-item">
                             <label class="info-label">CEP</label>
-                            <p class="info-data" id="user-cep">{{ usuario.cep | default('Não informado') }}</p>
+                            <p class="info-data view-only" id="user-cep">{{ usuario.cep | default('Não informado') }}</p>
+                            <input class="edit-only form-input" style="display:none" type="text" name="cep" id="input-cep" value="{{ usuario.cep | default('') }}">
                         </div>
                         <div class="info-item info-item-full">
                             <label class="info-label">Endereço</label>
-                            <p class="info-data" id="user-address">{{ usuario.endereco | default('Não informado') }}</p>
+                            <p class="info-data view-only" id="user-address">{{ usuario.endereco | default('Não informado') }}</p>
+                            <input class="edit-only form-input" style="display:none" type="text" name="endereco" id="input-endereco" value="{{ usuario.endereco | default('') }}">
                         </div>
                     </div>
                 </div>
@@ -117,29 +134,80 @@
                     <div class="info-grid">
                         <div class="info-item">
                             <label class="info-label">Tipo Sanguíneo</label>
-                            <p class="info-data info-data-highlight" id="user-blood-type">{{ usuario.tipo_sanguineo | default('Não informado') }}</p>
+                            <p class="info-data info-data-highlight view-only" id="user-blood-type">{{ usuario.tipo_sanguineo | default('Não informado') }}</p>
+                            <select class="edit-only form-input" style="display:none" name="tipo_sanguineo" id="input-tipo_sanguineo">
+                                <option value="">Selecione</option>
+                                {% for t in ['A+','A-','B+','B-','AB+','AB-','O+','O-','Não sei meu tipo de sangue'] %}
+                                    <option value="{{ t }}" {% if usuario.tipo_sanguineo == t %}selected{% endif %}>{{ t }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="info-item">
                             <label class="info-label">Já doou sangue?</label>
-                            <p class="info-data" id="user-has-donated">{{ "Sim" if usuario.ja_doou == 'sim' else "Não" }}</p>
+                            <p class="info-data view-only" id="user-has-donated">{{ "Sim" if usuario.ja_doou == 'sim' else "Não" }}</p>
+                            <select class="edit-only form-input" style="display:none" name="ja_doou" id="input-ja_doou">
+                                <option value="">Selecione</option>
+                                <option value="sim" {% if usuario.ja_doou == 'sim' %}selected{% endif %}>Sim</option>
+                                <option value="nao" {% if usuario.ja_doou == 'nao' %}selected{% endif %}>Não</option>
+                            </select>
                         </div>
                         <div class="info-item" id="first-donation-item" style="{{ 'display: grid;' if usuario.ja_doou == 'sim' else 'display: none;' }}">
                             <label class="info-label">Primeira vez</label>
-                            <p class="info-data" id="user-first-donation">{{ usuario.primeira_vez | default('Não informado') }}</p>
+                            <p class="info-data view-only" id="user-first-donation">{{ usuario.primeira_vez | default('Não informado') }}</p>
+                            <input class="edit-only form-input" style="display:none" type="text" name="primeira_vez" id="input-primeira_vez" value="{{ usuario.primeira_vez | default('') }}">
                         </div>
                         <div class="info-item" id="interest-item" style="{{ 'display: grid;' if usuario.ja_doou == 'nao' else 'display: none;' }}">
                             <label class="info-label">Interesse em doar</label>
-                            <p class="info-data" id="user-interest">{{ "Sim" if usuario.interesse == 'sim' else "Não" if usuario.interesse == 'nao' else 'Não informado' }}</p>
+                            <p class="info-data view-only" id="user-interest">{{ "Sim" if usuario.interesse == 'sim' else "Não" if usuario.interesse == 'nao' else 'Não informado' }}</p>
+                            <select class="edit-only form-input" style="display:none" name="interesse" id="input-interesse">
+                                <option value="">Selecione</option>
+                                <option value="sim" {% if usuario.interesse == 'sim' %}selected{% endif %}>Sim</option>
+                                <option value="nao" {% if usuario.interesse == 'nao' %}selected{% endif %}>Não</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-                
-                <button type="button" class="edit-button">Editar Perfil</button>
+
+                <div class="profile-card">
+                    <h2 class="card-title">Minhas Participações</h2>
+                    <div class="participations-list">
+                        {% if usuario.participacoes and usuario.participacoes|length > 0 %}
+                            <table class="campanhas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Campanha</th>
+                                        <th>Tipo Sanguíneo</th>
+                                        <th>Vagas</th>
+                                        <th>Inscrito em</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in usuario.participacoes %}
+                                        <tr>
+                                            <td>{{ p.nome }}</td>
+                                            <td>{{ p.tipo_sanguineo }}</td>
+                                            <td>{{ p.vagas }}</td>
+                                            <td>{{ p.joined_at | default('---') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p class="info-data">Você ainda não está participando de nenhuma campanha.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button type="button" id="edit-button" class="button">Editar Perfil</button>
+                    <button type="button" id="cancel-button" class="button" style="display:none">Cancelar</button>
+                    <button type="submit" id="save-button" class="button " style="display:none">Salvar</button>
+                </div>
+                </form>
             {% endif %}
         </section>
     </main>
 
-    {% include 'components/footer.html' %}
 
     <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/perfil.js') }}"></script>

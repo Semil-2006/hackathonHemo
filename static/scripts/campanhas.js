@@ -2,11 +2,9 @@
 
 // Carrega componentes e inicializa a página
 document.addEventListener("DOMContentLoaded", () => {
-    if (typeof loadComponent === 'function') {
-        loadComponent("header", "components/header.html");
-        loadComponent("footer", "components/footer.html");
-    }
-    
+    // header/footer are included server-side via Jinja includes in the templates.
+    // Avoid client-side fetch attempts to load template components (they returned 404).
+    // If you prefer client-side loading, move the snippets into `static/` and call loadComponent with the static path.
     // Inicializa as funcionalidades da página
     inicializarPaginaCampanhas();
 });
@@ -21,7 +19,8 @@ function inicializarPaginaCampanhas() {
 
 function carregarCampanhasDoStorage() {
     const campanhas = JSON.parse(localStorage.getItem('campanhas')) || [];
-    const tabela = document.getElementById('campanhasTable');
+    // the template uses a <tbody id="campanhasTableBody"> — target that element
+    const tabela = document.getElementById('campanhasTableBody');
     
     const campanhasAtivas = campanhas.filter(campanha => campanha.ativa);
     

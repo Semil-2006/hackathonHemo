@@ -1,253 +1,379 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cadastro</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css"
       rel="stylesheet"
     />
-    
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/cadastro.css') }}">
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/global.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/cadastro.css') }}"
+    />
 
     <style>
-        .back-to-top {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: none;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1000;
-        }
+      /* 1. Cor vermelha para o botão de subir */
+      .back-to-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: none;
+        background-color: #dc3545; /* Vermelho mais comum */
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para destacar */
+      }
 
-        .back-to-top:hover {
-            background-color: #0056b3;
-        }
+      .back-to-top:hover {
+        background-color: #c82333; /* Tom mais escuro no hover */
+      }
 
-        .submit-button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
+      .submit-button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
 
-        .password-container {
-            position: relative;
+      .conditional-group {
+        display: none; /* Inicialmente escondido */
+      }
+      
+      /* Adicionando margem inferior para aumentar a distância vertical dos inputs em telas menores */
+      .form-group {
+        margin-bottom: 1.5rem; /* mb-6 */
+      }
+      /* Remove a margem no md/lg para deixar o grid controlar o espaçamento */
+      @media (min-width: 768px) {
+        .form-group {
+          margin-bottom: 0;
         }
+      }
 
-        .password-toggle {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
+      /* Ajuste do container para ser maior em telas grandes */
+      .registration-container {
+        /* sm:max-w-xl (cerca de 560px) e lg:max-w-4xl (cerca de 1024px) */
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      @media (min-width: 640px) {
+        .registration-container {
+          max-width: 48rem; /* max-w-3xl (768px) ou personalize para um tamanho maior */
         }
-
-        .conditional-group {
-            display: none; /* Inicialmente escondido */
+      }
+      @media (min-width: 1024px) {
+        .registration-container {
+          max-width: 64rem; /* max-w-5xl (1024px) */
         }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     {% include 'components/header.html' %}
 
     <main class="main-content">
-        <section class="registration-container">
+      <section class="registration-container">
+        <h1 class="form-title">Cadastro de Doador</h1>
+        <p class="form-subtitle">
+          Seus dados são essenciais para salvar vidas.
+        </p>
+
+        <form class="registration-form" action="/submit" method="POST">
+          <!-- Aumentei o gap: gap-6 e lg:gap-8 -->
+          <div class="md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-8">
             
-            <a href="{{ url_for('index') }}" class="back-link">&larr; Voltar para Home</a>
+            <div class="form-group">
+              <label for="nome" class="form-label">Nome completo:</label>
+              <input
+                type="text"
+                id="nome"
+                name="nome"
+                class="form-input"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="form-label">Email:</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-input"
+                placeholder="nome@exemplo.com"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="senha" class="form-label">Senha:</label>
+              <input
+                type="password"
+                id="senha"
+                name="senha"
+                class="form-input"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="telefone" class="form-label">Telefone:</label>
+              <!-- APLICAÇÃO: Formatação e bloqueio de caracteres -->
+              <input
+                type="text"
+                id="telefone"
+                name="telefone"
+                class="form-input"
+                placeholder="(11) 99999-9999"
+                required
+                oninput="formatarTelefone(this)" 
+                maxlength="15"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="data_nascimento" class="form-label"
+                >Data de nascimento:</label
+              >
+              <input
+                type="date"
+                id="data_nascimento"
+                name="data_nascimento"
+                class="form-input"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="genero" class="form-label">Gênero:</label>
+              <select id="genero" name="genero" class="form-input" required>
+                <option value="">Selecione</option>
+                <option>Masculino</option>
+                <option>Feminino</option>
+                <option>Não binário</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="tipo_sanguineo" class="form-label"
+                >Tipo sanguíneo:</label
+              >
+              <select
+                id="tipo_sanguineo"
+                name="tipo_sanguineo"
+                class="form-input"
+                required
+              >
+                <option value="">Selecione</option>
+                <option>A+</option>
+                <option>A-</option>
+                <option>B+</option>
+                <option>B-</option>
+                <option>AB+</option>
+                <option>AB-</option>
+                <option>O+</option>
+                <option>O-</option>
+                <option>Não sei meu tipo de sangue</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="cep" class="form-label">CEP:</label>
+              <!-- APLICAÇÃO: Bloqueio de caracteres no CEP -->
+              <input
+                type="text"
+                id="cep"
+                name="cep"
+                class="form-input"
+                placeholder="00000-000"
+                required
+                onkeypress="somenteNumeros(event)"
+                maxlength="10"
+              />
+            </div>
+
+            <!-- Ocupa duas colunas no md e três no lg para alinhar bem o campo grande -->
+            <div class="form-group md:col-span-2 lg:col-span-3">
+              <label for="endereco" class="form-label">Endereço:</label>
+              <input
+                type="text"
+                id="endereco"
+                name="endereco"
+                class="form-input"
+                readonly
+              />
+            </div>
             
-            <h1 class="form-title">Cadastro de Doador</h1>
-            <p class="form-subtitle">Seus dados são essenciais para salvar vidas.</p>
+            <div class="form-group">
+              <label for="ja_doou" class="form-label">Já doou sangue?</label>
+              <select id="ja_doou" name="ja_doou" class="form-input" required>
+                <option value="">Selecione</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+              </select>
+            </div>
 
-            <form class="registration-form" action="/submit" method="POST">
-                
-                <div class="form-group">
-                    <label for="nome" class="form-label">Nome completo:</label>
-                    <input type="text" id="nome" name="nome" class="form-input" required>
-                </div>
+            <div id="pergunta_sim" class="form-group conditional-group">
+              <label for="primeira_vez" class="form-label"
+                >Qual foi a primeira vez?</label
+              >
+              <input
+                type="date"
+                id="primeira_vez"
+                name="primeira_vez"
+                class="form-input"
+              />
+            </div>
 
-                <div class="form-group">
-                    <label for="email" class="form-label">Email:</label>
-                    <input type="email" id="email" name="email" class="form-input" placeholder="nome@exemplo.com" required>
-                </div>
+            <div id="pergunta_nao" class="form-group conditional-group">
+              <label for="interesse" class="form-label"
+                >Tem interesse em doar sangue?</label
+              >
+              <select id="interesse" name="interesse" class="form-input">
+                <option value="">Selecione</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+              </select>
+            </div>
+          </div>
+          <div class="mt-4 flex flex-col md:col-span-2 lg:col-span-3">
+            <div class="flex items-center mb-4">
+              <!-- Checkbox de Mensagens -->
+              <input
+                id="autoriza_msg"
+                name="autoriza_msg"
+                type="checkbox"
+                value="sim"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+              />
+              <label
+                for="autoriza_msg"
+                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              >
+                Autorizo receber mensagens (E-mail / WhatsApp)
+              </label>
+            </div>
 
-                <div class="form-group password-container">
-                    <label for="senha" class="form-label">Senha:</label>
-                    <input type="password" id="senha" name="senha" class="form-input" required>
-                    <span class="password-toggle" onclick="togglePassword()">
-                        <svg id="eye-icon" class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>
-                        </svg>
-                    </span>
-                </div>
-                
-                <div class="form-group">
-                    <label for="telefone" class="form-label">Telefone:</label>
-                    <input type="text" id="telefone" name="telefone" class="form-input" placeholder="(11) 99999-9999" required>
-                </div>
+            <div class="flex items-center">
+              <!-- Checkbox de Dados (Requerido) -->
+              <input
+                id="autoriza_dados"
+                name="autoriza_dados"
+                type="checkbox"
+                value="sim"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+              />
+              <label
+                for="autoriza_dados"
+                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              >
+                Autorizo o uso dos meus dados conforme a
+                <a
+                  href="/politica-de-privacidade"
+                  target="_blank"
+                  class="text-blue-600 hover:underline"
+                >
+                  Política de Privacidade
+                </a>
+              </label>
+            </div>
+          </div>
+          
 
-                <div class="form-group">
-                    <label for="data_nascimento" class="form-label">Data de nascimento:</label>
-                    <input type="date" id="data_nascimento" name="data_nascimento" class="form-input" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="genero" class="form-label">Gênero:</label>
-                    <select id="genero" name="genero" class="form-input" required>
-                        <option value="">Selecione</option>
-                        <option>Masculino</option>
-                        <option>Feminino</option>
-                        <option>Não binário</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="tipo_sanguineo" class="form-label">Tipo sanguíneo:</label>
-                    <select id="tipo_sanguineo" name="tipo_sanguineo" class="form-input" required>
-                        <option value="">Selecione</option>
-                        <option>A+</option><option>A-</option>
-                        <option>B+</option><option>B-</option>
-                        <option>AB+</option><option>AB-</option>
-                        <option>O+</option><option>O-</option>
-                        <option>Não sei meu tipo de sangue</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="cep" class="form-label">CEP:</label>
-                    <input type="text" id="cep" name="cep" class="form-input" placeholder="00000-000" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="endereco" class="form-label">Endereço:</label>
-                    <input type="text" id="endereco" name="endereco" class="form-input" readonly>
-                </div>
-
-                <div class="form-group">
-                    <label for="ja_doou" class="form-label">Já doou sangue?</label>
-                    <select id="ja_doou" name="ja_doou" class="form-input" required>
-                        <option value="">Selecione</option>
-                        <option value="sim">Sim</option>
-                        <option value="nao">Não</option>
-                    </select>
-                </div>
-
-                <!-- Campos condicionais (controlados via JS) -->
-                <div id="pergunta_sim" class="form-group conditional-group">
-                    <label for="primeira_vez" class="form-label">Qual foi a primeira vez?</label>
-                    <input type="date" id="primeira_vez" name="primeira_vez" class="form-input">
-                </div>
-
-                <div id="pergunta_nao" class="form-group conditional-group">
-                    <label for="interesse" class="form-label">Tem interesse em doar sangue?</label>
-                    <select id="interesse" name="interesse" class="form-input">
-                        <option value="">Selecione</option>
-                        <option value="sim">Sim</option>
-                        <option value="nao">Não</option>
-                    </select>
-                </div>
-                
-                <div class="form-group-inline">
-                    <input id="autoriza_msg" name="autoriza_msg" type="checkbox" value="sim" class="form-checkbox" />
-                    <label for="autoriza_msg" class="form-label-inline">
-                        Autorizo receber mensagens
-                    </label>
-                </div>
-                <div class="form-group-inline">
-                    <input id="autoriza_dados" name="autoriza_dados" type="checkbox" value="sim" class="form-checkbox" required />
-                    <label for="autoriza_dados" class="form-label-inline">
-                        Autorizo o uso dos meus dados conforme a LGPD
-                    </label>
-                </div>
-                
-                <button type="submit" class="submit-button" disabled>Enviar Cadastro</button>
-            
-            </form>
-        </section>
+          <button type="submit" class="submit-button" disabled>
+            Enviar Cadastro
+          </button>
+        </form>
+      </section>
     </main>
-
-    <footer class="footer">
-        <!-- Opções removidas; apenas a seta para voltar ao topo -->
-    </footer>
 
     <button id="back-to-top" class="back-to-top">&uarr;</button>
 
     <script src="{{ url_for('static', filename='scripts/global.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/cadastro.js') }}"></script>
+    <!-- Adicionando o script de formatação e validação -->
+    <script src="scripts/formatador_numerico.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
     <script>
-        // Função para alternar visibilidade da senha
-        function togglePassword() {
-            const passwordInput = document.getElementById('senha');
-            const eyeIcon = document.getElementById('eye-icon');
-            const isPassword = passwordInput.type === 'password';
-            
-            passwordInput.type = isPassword ? 'text' : 'password';
-            eyeIcon.innerHTML = isPassword 
-                ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>`
-                : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>`;
+      // Função principal para verificar o estado dos checkboxes e habilitar/desabilitar o botão
+      function checkAuthorization() {
+        const submitBtn = document.querySelector(".submit-button");
+        const authMsg = document.getElementById("autoriza_msg");
+        const authDados = document.getElementById("autoriza_dados");
+
+        // O botão só é habilitado se AMBOS estiverem marcados
+        submitBtn.disabled = !(authMsg.checked && authDados.checked);
+      }
+
+      // Função para voltar ao topo
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Adiciona o evento de clique ao botão
+      document
+        .getElementById("back-to-top")
+        .addEventListener("click", scrollToTop);
+
+      // Mostra o botão quando o usuário rola para baixo
+      window.onscroll = function () {
+        if (
+          document.body.scrollTop > 20 ||
+          document.documentElement.scrollTop > 20
+        ) {
+          document.getElementById("back-to-top").style.display = "block";
+        } else {
+          document.getElementById("back-to-top").style.display = "none";
         }
+      };
 
-        // Função para voltar ao topo
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+      // REFERÊNCIAS DOS ELEMENTOS PARA AUTORIZAÇÃO
+      const submitBtn = document.querySelector(".submit-button");
+      const authMsg = document.getElementById("autoriza_msg");
+      const authDados = document.getElementById("autoriza_dados");
+
+      // Adiciona listeners para ambos os checkboxes
+      authMsg.addEventListener("change", checkAuthorization);
+      authDados.addEventListener("change", checkAuthorization);
+
+      // Chamada inicial para definir o estado do botão ao carregar a página
+      checkAuthorization();
+
+      // Controle dos campos condicionais (mantido)
+      const jaDoouSelect = document.getElementById("ja_doou");
+      const perguntaSim = document.getElementById("pergunta_sim");
+      const perguntaNao = document.getElementById("pergunta_nao");
+      const interesseSelect = document.getElementById("interesse");
+
+      jaDoouSelect.addEventListener("change", () => {
+        if (jaDoouSelect.value === "sim") {
+          perguntaSim.style.display = "block";
+          perguntaNao.style.display = "none";
+          interesseSelect.removeAttribute("required");
+        } else if (jaDoouSelect.value === "nao") {
+          perguntaSim.style.display = "none";
+          perguntaNao.style.display = "block";
+          interesseSelect.setAttribute("required", "required");
+        } else {
+          perguntaSim.style.display = "none";
+          perguntaNao.style.display = "none";
+          interesseSelect.removeAttribute("required");
         }
-
-        // Adiciona o evento de clique ao botão
-        document.getElementById('back-to-top').addEventListener('click', scrollToTop);
-
-        // Mostra o botão quando o usuário rola para baixo
-        window.onscroll = function() {
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                document.getElementById('back-to-top').style.display = 'block';
-            } else {
-                document.getElementById('back-to-top').style.display = 'none';
-            }
-        };
-
-        // Desabilitar botão de submit até o checkbox required ser marcado
-        const submitBtn = document.querySelector('.submit-button');
-        const authDados = document.getElementById('autoriza_dados');
-
-        // Inicialmente desabilitado
-        submitBtn.disabled = !authDados.checked;
-
-        // Evento de mudança para o checkbox
-        authDados.addEventListener('change', () => {
-            submitBtn.disabled = !authDados.checked;
-        });
-
-        // Controle dos campos condicionais
-        const jaDoouSelect = document.getElementById('ja_doou');
-        const perguntaSim = document.getElementById('pergunta_sim');
-        const perguntaNao = document.getElementById('pergunta_nao');
-        const interesseSelect = document.getElementById('interesse');
-
-        jaDoouSelect.addEventListener('change', () => {
-            if (jaDoouSelect.value === 'sim') {
-                perguntaSim.style.display = 'block';
-                perguntaNao.style.display = 'none';
-                interesseSelect.removeAttribute('required');
-            } else if (jaDoouSelect.value === 'nao') {
-                perguntaSim.style.display = 'none';
-                perguntaNao.style.display = 'block';
-                interesseSelect.setAttribute('required', 'required');
-            } else {
-                perguntaSim.style.display = 'none';
-                perguntaNao.style.display = 'none';
-                interesseSelect.removeAttribute('required');
-            }
-        });
+      });
     </script>
-</body>
+  </body>
 </html>
+

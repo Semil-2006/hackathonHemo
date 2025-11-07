@@ -31,89 +31,130 @@
     />
 
     <!-- Carrega o CSS de 'campanhas' e 'perfil' para reutilizar estilos de tabela/card -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/campanhas.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/perfil.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/campanhas.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/perfil.css') }}"
+    />
     <!-- Novo CSS específico -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/campanhas_admin.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/campanhas_admin.css') }}"
+    />
   </head>
   <body>
     {% include 'components/sidebar.html' %}
 
     <main class="main-content">
-        <section class="admin-container">
-            
-            <h1 class="admin-title">Gerenciar Campanhas</h1>
-            <p class="admin-subtitle">Adicione, edite ou remova campanhas ativas.</p>
+      <section class="admin-container">
+        <h1 class="admin-title">Gerenciar Campanhas</h1>
+        <p class="admin-subtitle">
+          Adicione, edite ou remova campanhas ativas.
+        </p>
 
-            <!-- Card 1: Criar Nova Campanha -->
-            <div class="admin-card">
-                <h2 class="card-title">Criar Nova Campanha</h2>
-                <!-- 
-                  Formulário de criação. O JS (admin_campanhas.js) 
-                  vai interceptar o 'submit' disto.
-                -->
-                <form id="formCriarCampanha" class="form-grid">
-                    <!-- Nome da Campanha -->
-                    <div class="info-item">
-                        <label for="novoNome" class="info-label">Nome da Campanha</label>
-                        <input type="text" id="novoNome" name="nome" class="form-input" placeholder="Ex: Urgência O- para Hospital de Base" required>
-                    </div>
-                    <!-- Tipo Sanguíneo -->
-                    <div class="info-item">
-                        <label for="novoTipoSanguineo" class="info-label">Tipo Sanguíneo Necessário</label>
-                        <select id="novoTipoSanguineo" name="tipo_sanguineo" class="form-input" required>
-                            <option value="">Selecione...</option>
-                            <option value="Todos">Todos os Tipos</option>
-                            <option value="A+">A+</option>
-                            <option value="A-">A-</option>
-                            <option value="B+">B+</option>
-                            <option value="B-">B-</option>
-                            <option value="AB+">AB+</option>
-                            <option value="AB-">AB-</option>
-                            <option value="O+">O+</option>
-                            <option value="O-">O-</option>
-                        </select>
-                    </div>
-                    <!-- Botão de Criar -->
-                    <div class="info-item-full">
-                        <button type="submit" class="submit-button">Criar Campanha</button>
-                    </div>
-                </form>
+        <!-- Card 1: Criar Nova Campanha -->
+        <div class="admin-card">
+          <h2 class="card-title">Criar Nova Campanha</h2>
+          <form id="formCriarCampanha" class="form-grid">
+            <div class="info-item">
+              <label for="novoNome" class="info-label">Nome da Campanha</label>
+              <input
+                type="text"
+                id="novoNome"
+                name="nome"
+                class="form-input"
+                placeholder="Ex: Urgência O- para Hospital de Base"
+                required
+              />
             </div>
-            
-            <!-- Card 2: Gerenciar Campanhas Existentes -->
-            <div class="admin-card">
-                <h2 class="card-title">Campanhas Ativas</h2>
-                
-                <!-- Filtro/Busca -->
-                <div class="search-bar-container">
-                    <label for="filtroCampanha" class="info-label">Buscar campanha</label>
-                    <input type="text" id="filtroCampanha" class="form-input" placeholder="Digite o nome ou tipo sanguíneo...">
-                </div>
-
-                <!-- Tabela de Gerenciamento -->
-                <div class="management-table-container">
-                    <table class="campanhas-table">
-                        <thead class="table-header">
-                            <tr>
-                                <th class="table-head">Nome</th>
-                                <th class="table-head">Tipo Sanguíneo</th>
-                                <th class="table-head">Vagas</th>
-                                <th class="table-head">Participantes</th>
-                                <th class="table-head">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelaAdminCampanhas">
-                            <!-- O JS (admin_campanhas.js) vai preencher aqui -->
-                            <tr>
-                                <td colspan="5" class="table-loading">Carregando campanhas...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="info-item">
+              <label for="novoTipoSanguineo" class="info-label"
+                >Tipo Sanguíneo Necessário</label
+              >
+              <select
+                id="novoTipoSanguineo"
+                name="tipo_sanguineo"
+                class="form-input"
+                required
+              >
+                <option value="">Selecione...</option>
+                <option value="Todos">Todos os Tipos</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
             </div>
+            <div class="info-item">
+              <label for="novoVagas" class="info-label"
+                >Vagas Disponíveis</label
+              >
+              <input
+                type="number"
+                id="novoVagas"
+                name="vagas"
+                class="form-input"
+                min="1"
+                value="50"
+                required
+              />
+            </div>
+            <div class="info-item-full">
+              <button type="submit" class="submit-button">
+                Criar Campanha
+              </button>
+            </div>
+          </form>
+        </div>
 
-        </section>
+        <!-- Card 2: Gerenciar Campanhas Existentes -->
+        <div class="admin-card">
+          <h2 class="card-title">Campanhas Ativas</h2>
+
+          <!-- Filtro/Busca -->
+          <div class="search-bar-container">
+            <label for="filtroCampanha" class="info-label"
+              >Buscar campanha</label
+            >
+            <input
+              type="text"
+              id="filtroCampanha"
+              class="form-input"
+              placeholder="Digite o nome ou tipo sanguíneo..."
+            />
+          </div>
+
+          <!-- Tabela de Gerenciamento -->
+          <div class="management-table-container">
+            <table class="campanhas-table">
+              <thead class="table-header">
+                <tr>
+                  <th class="table-head">Nome</th>
+                  <th class="table-head">Tipo Sanguíneo</th>
+                  <th class="table-head">Vagas</th>
+                  <th class="table-head">Participantes</th>
+                  <th class="table-head">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaAdminCampanhas">
+                <!-- O JS (admin_campanhas.js) vai preencher aqui -->
+                <tr>
+                  <td colspan="5" class="table-loading">
+                    Carregando campanhas...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- 
@@ -121,53 +162,75 @@
       Usaremos o mesmo CSS do modal de 'campanhas.css'
     -->
     <div id="editModal" class="modal-overlay">
-        <div class="modal-container">
-            <h3 class="modal-title">Editar Campanha</h3>
-            
-            <form id="formEditarCampanha" class="form-grid-modal">
-                <input type="hidden" id="editCampanhaId">
-                
-                <div class="info-item">
-                    <label for="editNome" class="info-label">Nome da Campanha</label>
-                    <input type="text" id="editNome" class="form-input" required>
-                </div>
-                <div class="info-item">
-                    <label for="editTipoSanguineo" class="info-label">Tipo Sanguíneo</label>
-                    <select id="editTipoSanguineo" class="form-input" required>
-                        <option value="Todos">Todos os Tipos</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                    </select>
-                </div>
-                <div class="info-item">
-                    <label for="editVagas" class="info-label">Vagas</label>
-                    <input type="number" id="editVagas" class="form-input" min="1" required>
-                </div>
-                <div class="info-item">
-                    <label for="editStatus" class="info-label">Status</label>
-                    <select id="editStatus" class="form-input" required>
-                        <option value="Ativa">Ativa</option>
-                        <option value="Encerrada">Encerrada</option>
-                    </select>
-                </div>
-            </form>
-            
-            <div class="modal-actions">
-                <button onclick="fecharModalEdicao()" class="modal-button-cancel">Cancelar</button>
-                <button onclick="salvarEdicao()" class="modal-button-confirm">Salvar Alterações</button>
-            </div>
+      <div class="modal-container">
+        <h3 class="modal-title">Editar Campanha</h3>
+
+        <form id="formEditarCampanha" class="form-grid-modal">
+          <input type="hidden" id="editCampanhaId" />
+
+          <div class="info-item">
+            <label for="editNome" class="info-label">Nome da Campanha</label>
+            <input type="text" id="editNome" class="form-input" required />
+          </div>
+          <div class="info-item">
+            <label for="editTipoSanguineo" class="info-label"
+              >Tipo Sanguíneo</label
+            >
+            <select id="editTipoSanguineo" class="form-input" required>
+              <option value="Todos">Todos os Tipos</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
+          <div class="info-item">
+            <label for="editVagas" class="info-label">Vagas</label>
+            <input
+              type="number"
+              id="editVagas"
+              class="form-input"
+              min="1"
+              required
+            />
+          </div>
+          <div class="info-item">
+            <label for="editStatus" class="info-label">Status</label>
+            <select id="editStatus" class="form-input" required>
+              <option value="Ativa">Ativa</option>
+              <option value="Encerrada">Encerrada</option>
+            </select>
+          </div>
+        </form>
+
+        <div class="modal-actions">
+          <button onclick="fecharModalEdicao()" class="modal-button-cancel">
+            Cancelar
+          </button>
+          <button onclick="salvarEdicao()" class="modal-button-confirm">
+            Salvar Alterações
+          </button>
         </div>
+      </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
-    <script src="{{ url_for('static', filename='scripts/global.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='scripts/index.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='scripts/carousel.js') }}" defer></script>
+    <script
+      src="{{ url_for('static', filename='scripts/global.js') }}"
+      defer
+    ></script>
+    <script
+      src="{{ url_for('static', filename='scripts/index.js') }}"
+      defer
+    ></script>
+    <script
+      src="{{ url_for('static', filename='scripts/carousel.js') }}"
+      defer
+    ></script>
+    <script src="{{ url_for('static', filename='scripts/admin_campanhas.js') }}" defer></script>
   </body>
 </html>

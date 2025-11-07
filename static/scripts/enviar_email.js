@@ -88,7 +88,10 @@ function enviarCampanha(agendado, quillInstance) {
         tipo_sanguineo: getSelectedOptions('seg-tipo-sanguineo'),
         cidade: getSelectedOptions('seg-cidade'),
         classificacao: document.getElementById('seg-classificacao').value,
-        interesse: document.getElementById('seg-interesse').value
+        interesse: document.getElementById('seg-interesse').value,
+        genero: (document.getElementById('seg-genero') ? document.getElementById('seg-genero').value : ''),
+        min_age: (document.getElementById('seg-min-age') && document.getElementById('seg-min-age').value) ? Number(document.getElementById('seg-min-age').value) : null,
+        max_age: (document.getElementById('seg-max-age') && document.getElementById('seg-max-age').value) ? Number(document.getElementById('seg-max-age').value) : null
     };
 
     // --- 4. Coleta do Remetente (E-mail) e Agendamento (Critério 3) ---
@@ -109,34 +112,33 @@ function enviarCampanha(agendado, quillInstance) {
         agendamento: agendamentoData
     };
 
-    // Linha de DEBUG: Mostra no console do navegador o JSON que seria enviado.
+    // Linha de DEBUG: Mostra no console do navegador o JSON que será enviado.
     console.log("Enviando para o backend:", JSON.stringify(dadosCampanha, null, 2));
 
-    /*
-    // !! PARTE DO BACKEND !!
-    // O código de 'fetch' (envio para o servidor) viria aqui.
-    
-    fetch('/api/admin/criar-campanha', { // Você precisará criar esta rota no app.py
+    // Envia para o backend o job de envio de campanha.
+    fetch('/api/admin/send_campaign', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
+        credentials: 'same-origin',
         body: JSON.stringify(dadosCampanha)
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Sucesso:', data);
-        alert('Campanha enviada com sucesso!');
-        // Opcional: redirecionar de volta para o dashboard
-        // window.location.href = "{{ url_for('dashboard_admin_page') }}";
+    .then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            console.error('Erro ao enviar campanha:', data);
+            alert('Erro ao enviar campanha: ' + (data.error || response.statusText));
+            return;
+        }
+        alert(`Campanha enviada. E-mails enviados: ${data.sent || 0}. Falhas: ${data.failed ? data.failed.length : 0}`);
     })
     .catch((error) => {
         console.error('Erro:', error);
-        alert('Erro ao enviar campanha.');
+        alert('Erro ao enviar campanha. Veja o console para detalhes.');
     });
-    */
-    
-    alert('Campanha enviada (simulação)! Verifique o console para ver o JSON.');
 }
 
 
